@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+.appwrap{font-family:'Tajawal',system-ui,sans-serif;direction:rtl;min-height:100vh;background:var(--bg);color:var(--text);
+ --bg:#0a1120;--bg2:#0d1424;--panel:#101c30;--panel2:#16243c;--line:#213149;--text:#eaf0f9;--muted:#93a4bd;--faint:#5e6f89;
+ --accent:#2f86c9;--accent2:#54a6e4;--accentSoft:#14304c;--green:#2fbd7e;--amber:#ecb53f;--red:#ef6c55;--redBh:#ce1126;
+ --shadow:0 16px 40px rgba(0,0,0,.4);--shadowSm:0 4px 14px rgba(0,0,0,.25);}
+.appwrap[data-theme="light"]{
+ --bg:#eaeef4;--bg2:#ffffff;--panel:#ffffff;--panel2:#f4f7fb;--line:#e3e8f1;--text:#17263e;--muted:#5d6c84;--faint:#93a1b6;
+ --accent:#0e4d7b;--accent2:#1a6fad;--accentSoft:#e7f0f8;--green:#1f9d63;--amber:#c5890f;--red:#d6543b;
+ --shadow:0 18px 44px rgba(20,45,80,.12);--shadowSm:0 4px 14px rgba(20,45,80,.07);}
+.app-sidebar{transition:transform .28s cubic-bezier(.4,0,.2,1);}
+.shell-main{margin-right:266px;}
+.backdrop{display:none;}
+@media (max-width:900px){ .shell-main{margin-right:0;} .app-sidebar{transform:translateX(112%);box-shadow:var(--shadow);} .app-sidebar.open{transform:none;} .backdrop{display:block;} }
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+@keyframes slideIn{from{transform:translateX(-100%);}to{transform:none;}}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;transform:none;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes agdot{0%,60%,100%{transform:translateY(0);opacity:.5;}30%{transform:translateY(-5px);opacity:1;}}
+input,button,select,textarea{font-family:inherit;}
+input::placeholder,textarea::placeholder{color:var(--faint);}
+select{appearance:none;-webkit-appearance:none;}
+</style>
+<script src="./seed-data.js"></script>
+<script src="./ece-store.js"></script>
+</helmet>
+<div class="appwrap" data-theme="{{ theme }}">
+
+  <sc-if value="{{ showLogin }}">
+    <div data-screen-label="تسجيل الدخول" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(1200px 600px at 70% -10%,color-mix(in oklab,var(--accent) 26%,var(--bg)),var(--bg));">
+      <div style="width:min(420px,100%);background:var(--bg2);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:34px 30px;animation:pop .4s ease;">
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;margin-bottom:24px;">
+          <div style="width:62px;height:62px;border-radius:17px;background:linear-gradient(140deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 12px 26px -8px var(--accent);">{{ icons.building }}</div>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <span style="font-size:19px;font-weight:900;">نظام تراخيص ومتابعة التعليم المبكر</span>
+            <span style="font-size:12.5px;color:var(--faint);font-weight:600;">وزارة التربية والتعليم — مملكة البحرين</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:13px;">
+          <label style="display:flex;flex-direction:column;gap:7px;">
+            <span style="font-size:12.5px;font-weight:700;color:var(--muted);">اسم المستخدم</span>
+            <div style="display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0 13px;height:46px;color:var(--faint);">{{ icons.user }}<input value="{{ loginUser }}" onInput="{{ onLoginUser }}" placeholder="admin" style="border:0;background:transparent;outline:none;color:var(--text);font-size:14px;width:100%;"></div>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:7px;">
+            <span style="font-size:12.5px;font-weight:700;color:var(--muted);">كلمة المرور</span>
+            <div style="display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:0 13px;height:46px;color:var(--faint);">{{ icons.lock }}<input type="password" value="{{ loginPass }}" onInput="{{ onLoginPass }}" onKeyDown="{{ onLoginKey }}" placeholder="••••" style="border:0;background:transparent;outline:none;color:var(--text);font-size:14px;width:100%;"></div>
+          </label>
+          <sc-if value="{{ loginErr }}"><div style="font-size:12.5px;color:var(--red);font-weight:700;display:flex;align-items:center;gap:6px;">{{ icons.warn }}{{ loginErr }}</div></sc-if>
+          <button onClick="{{ doLogin }}" style="margin-top:4px;height:48px;border:0;border-radius:12px;background:linear-gradient(120deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 10px 22px -8px var(--accent);">تسجيل الدخول</button>
+          <div style="display:flex;align-items:center;gap:10px;margin:4px 0;"><span style="flex:1;height:1px;background:var(--line);"></span><span style="font-size:11px;color:var(--faint);font-weight:700;">أو</span><span style="flex:1;height:1px;background:var(--line);"></span></div>
+          <button onClick="{{ openMs }}" style="height:48px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;" style-hover="border-color:var(--accent2);">
+            <span style="display:grid;grid-template-columns:9px 9px;grid-template-rows:9px 9px;gap:2px;flex-shrink:0;"><span style="background:#F25022;"></span><span style="background:#7FBA00;"></span><span style="background:#00A4EF;"></span><span style="background:#FFB900;"></span></span>
+            <span>تسجيل الدخول عبر Microsoft</span>
+          </button>
+        </div>
+        <div style="margin-top:22px;border-top:1px solid var(--line);padding-top:16px;">
+          <span style="font-size:11.5px;font-weight:700;color:var(--faint);">حسابات تجريبية — اضغط للدخول</span>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+            <sc-for list="{{ demoAccounts }}" as="acc" hint-placeholder-count="3">
+              <div onClick="{{ acc.onClick }}" style="display:flex;align-items:center;gap:11px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:9px 12px;cursor:pointer;" style-hover="border-color:var(--accent2);">
+                <div style="width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:{{ acc.color }};background:color-mix(in oklab,{{ acc.color }} 15%,transparent);flex-shrink:0;">{{ acc.icon }}</div>
+                <div style="display:flex;flex-direction:column;flex:1;line-height:1.4;"><span style="font-size:13px;font-weight:700;">{{ acc.role }}</span><span style="font-size:11px;color:var(--faint);font-family:monospace;direction:ltr;text-align:right;">{{ acc.cred }}</span></div>
+                <span style="color:var(--faint);">{{ icons.arrow }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    <sc-if value="{{ msPicker }}">
+      <div onClick="{{ closeMs }}" style="position:fixed;inset:0;background:rgba(4,9,18,.66);z-index:90;backdrop-filter:blur(2px);"></div>
+      <div style="position:fixed;inset:0;z-index:91;display:flex;align-items:center;justify-content:center;padding:24px;pointer-events:none;">
+        <div style="pointer-events:auto;width:min(400px,100%);background:#fff;color:#1b1b1b;border-radius:8px;box-shadow:0 30px 80px -20px rgba(0,0,0,.6);animation:pop .25s ease;overflow:hidden;">
+          <div style="padding:22px 26px 6px;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:18px;"><span style="display:grid;grid-template-columns:10px 10px;grid-template-rows:10px 10px;gap:2px;"><span style="background:#F25022;"></span><span style="background:#7FBA00;"></span><span style="background:#00A4EF;"></span><span style="background:#FFB900;"></span></span><span style="font-size:15px;font-weight:700;color:#5e5e5e;">Microsoft</span></div>
+            <div style="font-size:20px;font-weight:700;margin-bottom:4px;">اختيار حساب</div>
+            <div style="font-size:13px;color:#666;margin-bottom:8px;">للدخول إلى نظام تراخيص التعليم المبكر</div>
+          </div>
+          <div style="display:flex;flex-direction:column;border-top:1px solid #ededed;">
+            <sc-for list="{{ msAccounts }}" as="a" hint-placeholder-count="4">
+              <div onClick="{{ a.onClick }}" style="display:flex;align-items:center;gap:12px;padding:13px 26px;cursor:pointer;border-bottom:1px solid #f2f2f2;" style-hover="background:#f5f5f5;">
+                <div style="width:36px;height:36px;border-radius:50%;background:#0078d4;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;">{{ a.init }}</div>
+                <div style="display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;"><span style="font-size:13.5px;font-weight:700;color:#1b1b1b;">{{ a.name }}</span><span style="font-size:12px;color:#666;direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;">{{ a.email }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="padding:14px 26px 20px;"><span style="font-size:12px;color:#0067b8;cursor:pointer;" onClick="{{ closeMs }}">استخدام حساب آخر</span></div>
+        </div>
+      </div>
+    </sc-if>
+  </sc-if>
+
+  <sc-if value="{{ showApp }}">
+
+  <sc-if value="{{ navOpen }}"><div class="backdrop" onClick="{{ toggleNav }}" style="position:fixed;inset:0;background:rgba(4,9,18,.55);z-index:40;"></div></sc-if>
+
+  <aside class="app-sidebar {{ navClass }}" style="position:fixed;top:0;right:0;height:100vh;width:266px;background:var(--bg2);border-left:1px solid var(--line);display:flex;flex-direction:column;z-index:50;">
+    <div style="display:flex;align-items:center;gap:12px;padding:20px 18px 16px;border-bottom:1px solid var(--line);">
+      <div style="width:42px;height:42px;border-radius:12px;background:linear-gradient(140deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 8px 18px -6px var(--accent);flex-shrink:0;">{{ icons.building }}</div>
+      <div style="display:flex;flex-direction:column;line-height:1.35;">
+        <span style="font-size:13.5px;font-weight:800;color:var(--text);line-height:1.3;">إدارة تراخيص ومتابعة التعليم المبكر</span>
+        <span style="font-size:11px;color:var(--faint);font-weight:600;">وزارة التربية والتعليم</span>
+      </div>
+    </div>
+    <nav style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:4px;" data-comment-anchor="4741e1deb3-nav">
+      <span style="font-size:11px;font-weight:700;color:var(--faint);padding:6px 10px 4px;letter-spacing:.5px;">القائمة الرئيسية</span>
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="8">
+        <sc-if value="{{ item.active }}">
+          <div onClick="{{ item.onClick }}" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;font-size:14.5px;font-weight:700;color:#fff;background:linear-gradient(90deg,var(--accent),var(--accent2));box-shadow:0 8px 18px -9px var(--accent);">
+            <span style="display:flex;">{{ item.icon }}</span><span style="flex:1;" data-comment-anchor="df5b1a572c-span">{{ item.label }}</span>
+            <sc-if value="{{ item.badge }}"><span style="font-size:10.5px;font-weight:800;background:rgba(255,255,255,.25);border-radius:999px;padding:1px 7px;">{{ item.badge }}</span></sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ item.inactive }}">
+          <div onClick="{{ item.onClick }}" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;font-size:14.5px;font-weight:600;color:var(--muted);" style-hover="background:var(--panel2);color:var(--text);">
+            <span style="display:flex;">{{ item.icon }}</span><span style="flex:1;">{{ item.label }}</span>
+            <sc-if value="{{ item.badge }}"><span style="font-size:10.5px;font-weight:800;color:var(--faint);background:var(--panel2);border-radius:999px;padding:1px 7px;">{{ item.badge }}</span></sc-if>
+          </div>
+        </sc-if>
+      </sc-for>
+    </nav>
+    <div style="padding:12px 14px 16px;border-top:1px solid var(--line);">
+      <div style="display:flex;align-items:center;gap:11px;padding:10px;border-radius:12px;background:var(--panel);">
+        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(140deg,#3a5b86,#1f3a5c);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;flex-shrink:0;">{{ userInit }}</div>
+        <div style="display:flex;flex-direction:column;line-height:1.4;overflow:hidden;flex:1;">
+          <span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" data-comment-anchor="8e209e33ce-span">{{ userName }}</span>
+          <span style="font-size:11px;color:var(--accent2);font-weight:600;">{{ userRole }}</span>
+        </div>
+        <button onClick="{{ logout }}" title="تسجيل الخروج" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;flex-shrink:0;" style-hover="color:var(--red);border-color:var(--red);">{{ icons.logout }}</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="shell-main" style="min-height:100vh;display:flex;flex-direction:column;">
+    <header style="position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:14px;padding:13px 22px;background:color-mix(in oklab,var(--bg) 80%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);">
+      <sc-if value="{{ isMobile }}"><button onClick="{{ toggleNav }}" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:11px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;">{{ icons.menu }}</button></sc-if>
+      <div style="display:flex;flex-direction:column;line-height:1.3;">
+        <span style="font-size:11.5px;color:var(--faint);font-weight:600;">الرئيسية / {{ screenTitle }}</span>
+        <span style="font-size:18px;font-weight:800;">{{ screenTitle }}</span>
+      </div>
+      <div style="flex:1;"></div>
+      <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;color:var(--green);background:color-mix(in oklab,var(--green) 12%,transparent);border:1px solid color-mix(in oklab,var(--green) 28%,transparent);border-radius:999px;padding:6px 12px;">{{ icons.cloud }}<span>{{ saveLabel }}</span></div>
+      <button onClick="{{ toggleTheme }}" style="display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--amber);cursor:pointer;" style-hover="color:var(--text);">{{ themeIcon }}</button>
+    </header>
+
+    <main style="flex:1;padding:24px;width:100%;max-width:1340px;margin:0 auto;">
+
+      <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}"><div data-screen-label="لوحة التحكم" style="animation:fadeUp .4s ease;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px;">
+          <div style="display:flex;flex-direction:column;gap:4px;"><span style="font-size:22px;font-weight:900;">نظرة عامة على الأداء</span><span style="font-size:13.5px;color:var(--muted);">{{ dashSubtitle }}</span></div>
+          <button onClick="{{ exportInst }}" style="display:flex;align-items:center;gap:7px;background:linear-gradient(120deg,var(--accent),var(--accent2));border:0;border-radius:11px;padding:10px 16px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 8px 18px -8px var(--accent);">{{ icons.down }}<span>تصدير CSV</span></button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:18px;">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+            <div onClick="{{ k.onClick }}" style="background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadowSm);cursor:pointer;transition:border-color .15s,transform .15s;" style-hover="border-color:var(--accent2);transform:translateY(-2px);">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <div style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:{{ k.color }};background:color-mix(in oklab,{{ k.color }} 15%,transparent);">{{ k.icon }}</div>
+                <span style="display:flex;align-items:center;gap:3px;font-size:12.5px;font-weight:800;color:{{ k.deltaColor }};">{{ k.deltaIcon }}{{ k.delta }}</span>
+              </div>
+              <div style="font-size:34px;font-weight:900;line-height:1;" data-comment-anchor="ae0e5a218d-div">{{ k.value }}</div>
+              <div style="font-size:13.5px;color:var(--muted);font-weight:600;margin-top:6px;">{{ k.label }}</div>
+              <div style="display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;color:var(--accent2);margin-top:10px;">عرض التفاصيل {{ icons.arrow }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:18px;">
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadowSm);grid-column:span 2;min-width:300px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><div style="display:flex;flex-direction:column;"><span style="font-size:16px;font-weight:800;">الزيارات التفتيشية الشهرية</span><span style="font-size:12.5px;color:var(--muted);">آخر 12 شهراً</span></div><span style="display:flex;align-items:center;gap:3px;font-size:13px;font-weight:800;color:var(--green);">{{ icons.up }}68%</span></div>
+            <svg viewBox="0 0 340 120" preserveAspectRatio="none" style="width:100%;height:170px;display:block;"><defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="var(--accent2)" stopOpacity="0.32"></stop><stop offset="1" stopColor="var(--accent2)" stopOpacity="0"></stop></linearGradient></defs><polygon points="{{ trendArea }}" fill="url(#tg)"></polygon><polyline points="{{ trendLine }}" fill="none" stroke="var(--accent2)" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke"></polyline></svg>
+            <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--faint);font-weight:600;"><span>يوليو</span><span>سبتمبر</span><span>نوفمبر</span><span>يناير</span><span>مارس</span><span>مايو</span></div>
+          </div>
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadowSm);min-width:260px;">
+            <span style="font-size:16px;font-weight:800;">توزيع المؤسسات حسب النوع</span>
+            <div style="display:flex;align-items:center;gap:20px;margin-top:18px;" data-comment-anchor="a1698d6a14-div">
+              <div style="position:relative;width:128px;height:128px;border-radius:50%;background:{{ donutBg }};flex-shrink:0;"><div style="position:absolute;inset:16px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;"><span style="font-size:26px;font-weight:900;line-height:1;">{{ instCount }}</span><span style="font-size:11px;color:var(--muted);font-weight:600;">إجمالي</span></div></div>
+              <div style="display:flex;flex-direction:column;gap:12px;flex:1;">
+                <sc-for list="{{ types }}" as="t" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:9px;"><span style="width:11px;height:11px;border-radius:3px;background:{{ t.dot }};flex-shrink:0;"></span><span style="font-size:13px;font-weight:600;color:var(--muted);flex:1;">{{ t.l }}</span><span style="font-size:13.5px;font-weight:800;">{{ t.v }}</span><span style="font-size:11.5px;color:var(--faint);width:38px;text-align:left;">{{ t.pct }}</span></div></sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;">
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadowSm);grid-column:span 2;min-width:300px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;"><span style="font-size:16px;font-weight:800;">أحدث الزيارات التفتيشية</span><span onClick="{{ goInspection }}" style="font-size:12.5px;font-weight:700;color:var(--accent2);cursor:pointer;">عرض الكل ←</span></div>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+              <div style="display:grid;grid-template-columns:2.2fr 1fr 1fr 1.4fr 0.9fr;gap:10px;padding:0 6px 10px;font-size:11.5px;font-weight:700;color:var(--faint);border-bottom:1px solid var(--line);"><span>المؤسسة</span><span>النوع</span><span>التاريخ</span><span>المفتش</span><span>النتيجة</span></div>
+              <sc-for list="{{ recentVisits }}" as="v" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:2.2fr 1fr 1fr 1.4fr 0.9fr;gap:10px;align-items:center;padding:11px 6px;border-bottom:1px solid color-mix(in oklab,var(--line) 55%,transparent);font-size:13px;" style-hover="background:var(--panel2);"><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ v.inst }}</span><span style="color:var(--muted);">{{ v.type }}</span><span style="color:var(--muted);">{{ v.date }}</span><span style="color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ v.inspector }}</span><span style="{{ v.resultCss }}">{{ v.resLabel }}</span></div></sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px;min-width:260px;">
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadowSm);">
+              <span style="font-size:16px;font-weight:800;">التوزيع حسب المحافظة</span>
+              <div style="display:flex;flex-direction:column;gap:14px;margin-top:16px;"><sc-for list="{{ govs }}" as="g" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;gap:6px;"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;"><span>{{ g.n }}</span><span style="font-weight:800;">{{ g.v }}</span></div><div style="height:8px;border-radius:6px;background:var(--panel2);overflow:hidden;"><div style="height:100%;width:{{ g.w }};border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));"></div></div></div></sc-for></div>
+            </div>
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadowSm);flex:1;" data-comment-anchor="501f510ed4-div">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><span style="font-size:16px;font-weight:800;">التنبيهات المهمة</span><span style="font-size:11px;font-weight:800;color:#fff;background:var(--red);border-radius:999px;padding:2px 9px;">{{ alertCount }}</span></div>
+              <div onClick="{{ toggleEmailAlerts }}" style="display:flex;align-items:center;gap:9px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:9px 11px;margin-bottom:14px;cursor:pointer;" style-hover="border-color:var(--accent2);">
+                <span style="display:flex;color:{{ emailColor }};">{{ icons.mail }}</span>
+                <div style="display:flex;flex-direction:column;flex:1;line-height:1.4;"><span style="font-size:11.5px;font-weight:700;">إشعار مدير النظام بالبريد</span><span style="font-size:10.5px;color:var(--faint);direction:ltr;text-align:right;">{{ adminEmail }}</span></div>
+                <span style="width:38px;height:22px;border-radius:999px;background:{{ emailTrackBg }};position:relative;flex-shrink:0;transition:background .2s;"><span style="position:absolute;top:2px;{{ emailKnobPos }}:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:all .2s;"></span></span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:9px;"><sc-for list="{{ alerts }}" as="a" hint-placeholder-count="4"><div onClick="{{ a.onClick }}" style="display:flex;gap:11px;align-items:flex-start;cursor:pointer;border-radius:10px;padding:5px;margin:-5px;" style-hover="background:var(--panel2);"><div style="width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:{{ a.dot }};background:color-mix(in oklab,{{ a.dot }} 14%,transparent);">{{ a.icon }}</div><div style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0;"><span style="font-size:12.7px;font-weight:600;line-height:1.5;">{{ a.text }}</span><span style="font-size:11px;color:var(--faint);">{{ a.time }}</span></div><span style="color:var(--faint);display:flex;align-self:center;">{{ icons.arrow }}</span></div></sc-for></div>
+            </div>
+          </div>
+        </div>
+      </div></sc-if>
+
+      <sc-if value="{{ isInstitutions }}"><div data-screen-label="المؤسسات" style="animation:fadeUp .4s ease;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+          <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:22px;font-weight:900;">{{ instTitle }}</span><span style="font-size:13.5px;color:var(--muted);">{{ instSubtitle }}</span></div>
+          <sc-if value="{{ canAddInst }}"><button onClick="{{ addInst }}" style="display:flex;align-items:center;gap:7px;background:linear-gradient(120deg,var(--accent),var(--accent2));border:0;border-radius:11px;padding:11px 17px;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 8px 18px -8px var(--accent);" data-comment-anchor="13118fda1a-button">{{ icons.plus }}<span>تسجيل مؤسسة جديدة</span></button></sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:0 13px;height:42px;flex:1;min-width:220px;color:var(--faint);">{{ icons.search }}<input value="{{ q }}" onInput="{{ onSearch }}" placeholder="بحث بالاسم أو رقم الترخيص أو المالك…" style="border:0;background:transparent;outline:none;color:var(--text);font-size:13.5px;width:100%;"></div>
+          <select value="{{ fType }}" onChange="{{ onFType }}" style="background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:0 14px;height:42px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;"><sc-for list="{{ typeFilterOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+          <select value="{{ fGov }}" onChange="{{ onFGov }}" style="background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:0 14px;height:42px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;"><sc-for list="{{ govFilterOpts }}" as="o" hint-placeholder-count="5"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+          <select value="{{ fStatus }}" onChange="{{ onFStatus }}" style="background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:0 14px;height:42px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;"><sc-for list="{{ statusFilterOpts }}" as="o" hint-placeholder-count="5"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadowSm);overflow:hidden;">
+          <div style="display:grid;grid-template-columns:2.4fr 1.3fr 1fr 1fr 1.4fr 1fr;gap:12px;padding:15px 18px;font-size:11.5px;font-weight:700;color:var(--faint);border-bottom:1px solid var(--line);background:var(--panel2);" data-comment-anchor="9e9b38f403-span"><sc-for list="{{ instCols }}" as="c" hint-placeholder-count="6"><span onClick="{{ c.onSort }}" style="display:flex;align-items:center;gap:3px;cursor:pointer;user-select:none;color:{{ c.color }};" style-hover="color:var(--text);">{{ c.label }}{{ c.arrow }}</span></sc-for></div>
+          <sc-for list="{{ institutions }}" as="x" hint-placeholder-count="8">
+            <div onClick="{{ x.onOpen }}" style="display:grid;grid-template-columns:2.4fr 1.3fr 1fr 1fr 1.4fr 1fr;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid color-mix(in oklab,var(--line) 55%,transparent);cursor:pointer;font-size:13px;" style-hover="background:var(--panel2);">
+              <div style="display:flex;align-items:center;gap:11px;min-width:0;"><div style="width:38px;height:38px;border-radius:11px;background:color-mix(in oklab,var(--accent2) 14%,transparent);color:var(--accent2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;">{{ x.initial }}</div><div style="display:flex;flex-direction:column;min-width:0;"><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ x.name }}</span><span style="font-size:11.5px;color:var(--faint);">سعة {{ x.capacity }} طفل</span></div></div>
+              <span style="color:var(--muted);font-family:monospace;font-size:12px;">{{ x.license }}</span>
+              <span style="color:var(--muted);">{{ x.type }}</span>
+              <span style="color:var(--muted);">{{ x.gov }}</span>
+              <div style="display:flex;align-items:center;gap:8px;"><div style="height:7px;flex:1;border-radius:5px;background:var(--panel2);overflow:hidden;max-width:80px;"><div style="height:100%;width:{{ x.compW }};background:{{ x.compColor }};border-radius:5px;"></div></div><span style="font-size:12px;font-weight:800;color:{{ x.compColor }};">{{ x.compLabel }}</span></div>
+              <span style="{{ x.statusCss }}">{{ x.status }}</span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noResults }}"><div style="padding:40px;text-align:center;color:var(--faint);font-size:14px;">{{ emptyInstMsg }}</div></sc-if>
+        </div>
+      </div></sc-if>
+
+      <sc-if value="{{ isLicenses }}"><div data-screen-label="التراخيص" style="animation:fadeUp .4s ease;">
+        <div style="display:flex;flex-direction:column;gap:3px;margin-bottom:18px;"><span style="font-size:22px;font-weight:900;">إدارة التراخيص</span><span style="font-size:13.5px;color:var(--muted);">مرتبة حسب الأقرب انتهاءً — {{ icons.none }}الترخيص الحرج يتطلب تجديداً عاجلاً</span></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;">
+          <sc-for list="{{ licStats }}" as="s" hint-placeholder-count="5"><div style="background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px;box-shadow:var(--shadowSm);"><div style="font-size:26px;font-weight:900;color:{{ s.color }};line-height:1;" data-comment-anchor="99630dff55-div">{{ s.v }}</div><div style="font-size:12.5px;color:var(--muted);font-weight:600;margin-top:5px;">{{ s.l }}</div></div></sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:18px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="display:flex;color:{{ emailColor }};">{{ icons.mail }}</span>
+            <div style="display:flex;flex-direction:column;flex:1;line-height:1.5;"><span style="font-size:13px;font-weight:700;">إشعار التراخيص الحرجة بالبريد الإلكتروني</span><span style="font-size:11.5px;color:var(--faint);">تُرسَل تنبيهات الانتهاء تلقائياً إلى بريد مدير النظام والمستلمين المحددين أدناه</span></div>
+            <span onClick="{{ toggleEmailAlerts }}" style="width:40px;height:23px;border-radius:999px;background:{{ emailTrackBg }};position:relative;flex-shrink:0;cursor:pointer;"><span style="position:absolute;top:2px;{{ emailKnobPos }}:2px;width:19px;height:19px;border-radius:50%;background:#fff;"></span></span>
+          </div>
+          <div style="border-top:1px solid var(--line);padding-top:12px;" data-comment-anchor="3f1f408363-span">
+            <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:8px;">بريد مدير النظام — المستلم المباشر للتنبيهات</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="display:flex;color:var(--accent2);flex-shrink:0;">{{ icons.mail }}</span>
+              <input value="{{ adminEmailValue }}" onInput="{{ onAdminEmailInput }}" onBlur="{{ saveAdminEmail }}" onKeyDown="{{ onAdminEmailKey }}" placeholder="admin@moe.gov.bh" style="flex:1;min-width:0;height:40px;border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:0 12px;color:var(--text);font-size:13px;outline:none;direction:ltr;text-align:left;">
+            </div>
+            <div style="font-size:10.5px;color:var(--faint);margin-top:6px;">يُحفظ تلقائياً عند الخروج من الحقل. تصل إليه جميع تنبيهات التراخيص الحرجة مباشرةً.</div>
+          </div>
+          <div style="border-top:1px solid var(--line);padding-top:12px;">
+            <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:8px;">مستلمون إضافيون للتنبيهات (إلى جانب مدير النظام)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px;">
+              <sc-for list="{{ emailRecipients }}" as="r" hint-placeholder-count="0"><span style="display:flex;align-items:center;gap:6px;background:var(--accentSoft);color:var(--accent2);border-radius:999px;padding:4px 6px 4px 11px;font-size:12px;font-weight:700;direction:ltr;">{{ r.email }}<span onClick="{{ r.onRemove }}" style="display:flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:color-mix(in oklab,var(--accent2) 22%,transparent);cursor:pointer;">{{ icons.close }}</span></span></sc-for>
+              <sc-if value="{{ noRecipients }}"><span style="font-size:12px;color:var(--faint);">لا يوجد مستلمون إضافيون بعد.</span></sc-if>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input value="{{ emailInput }}" onInput="{{ onEmailInput }}" onKeyDown="{{ onEmailKey }}" placeholder="name@example.com" style="flex:1;min-width:0;height:40px;border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:0 12px;color:var(--text);font-size:13px;outline:none;direction:ltr;text-align:left;">
+              <button onClick="{{ addEmailRecipient }}" style="display:flex;align-items:center;gap:6px;background:linear-gradient(120deg,var(--accent),var(--accent2));border:0;border-radius:10px;padding:0 15px;height:40px;font-size:12.5px;font-weight:700;color:#fff;cursor:pointer;flex-shrink:0;">{{ icons.plus }}إضافة</button>
+            </div>
+            <sc-if value="{{ emailErr }}"><div style="font-size:11.5px;color:var(--red);font-weight:700;margin-top:7px;">{{ emailErr }}</div></sc-if>
+          </div>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadowSm);overflow:hidden;">
+          <div style="display:grid;grid-template-columns:2.4fr 1.4fr 1fr 1.4fr 1.3fr 1fr;gap:12px;padding:15px 18px;font-size:11.5px;font-weight:700;color:var(--faint);border-bottom:1px solid var(--line);background:var(--panel2);"><span>المؤسسة</span><span>رقم الترخيص</span><span>سنة الإصدار</span><span>تاريخ الانتهاء</span><span>الحالة</span><span></span></div>
+          <sc-for list="{{ licenses }}" as="l" hint-placeholder-count="8">
+            <div style="display:grid;grid-template-columns:2.4fr 1.4fr 1fr 1.4fr 1.3fr 1fr;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid color-mix(in oklab,var(--line) 55%,transparent);font-size:13px;" style-hover="background:var(--panel2);">
+              <span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;" onClick="{{ l.onOpen }}">{{ l.name }}</span>
+              <span style="color:var(--muted);font-family:monospace;font-size:12px;">{{ l.license }}</span>
+              <span style="color:var(--muted);">{{ l.year }}</span>
+              <div style="display:flex;flex-direction:column;"><span style="font-weight:700;">{{ l.expiry }}</span><span style="font-size:11px;color:{{ l.stageColor }};font-weight:700;">{{ l.daysLabel }}</span></div>
+              <span style="{{ l.stageCss }}">{{ l.stageLabel }}</span>
+              <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+                <sc-if value="{{ l.critical }}"><button onClick="{{ l.onEmail }}" title="إرسال تنبيه لبريد مدير النظام" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid var(--line);background:transparent;color:var(--amber);border-radius:9px;cursor:pointer;flex-shrink:0;" style-hover="background:var(--panel2);">{{ icons.mail }}</button></sc-if>
+                <sc-if value="{{ canManage }}"><button onClick="{{ l.onRenew }}" style="display:flex;align-items:center;justify-content:center;gap:5px;border:1px solid var(--line);background:transparent;color:var(--accent2);border-radius:9px;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer;" style-hover="background:var(--accentSoft);">{{ icons.refresh }}تجديد</button></sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div></sc-if>
+
+      <sc-if value="{{ isInspection }}"><div data-screen-label="التفتيش" style="animation:fadeUp .4s ease;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+          <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:22px;font-weight:900;">إدارة التفتيش</span><span style="font-size:13.5px;color:var(--muted);">{{ inspCount }} زيارة مسجّلة · نموذج تقييم معتمد بـ {{ axisItemCount }} بند</span></div>
+          <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+            <button onClick="{{ printInsp }}" style="display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:11px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;" style-hover="background:var(--panel2);">{{ icons.print }}طباعة</button>
+            <button onClick="{{ exportInsp }}" style="display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);color:var(--green);border-radius:11px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;" style-hover="background:var(--panel2);">{{ icons.sheet }}تصدير Excel</button>
+            <sc-if value="{{ canWrite }}"><button onClick="{{ startInspection }}" style="display:flex;align-items:center;gap:7px;background:linear-gradient(120deg,var(--accent),var(--accent2));border:0;border-radius:11px;padding:11px 17px;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 8px 18px -8px var(--accent);">{{ icons.plus }}<span>تنفيذ زيارة تفتيشية</span></button></sc-if>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px;">
+          <sc-for list="{{ inspStats }}" as="s" hint-placeholder-count="4"><div style="background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px;box-shadow:var(--shadowSm);" data-comment-anchor="1bbad2c731-div"><div style="font-size:26px;font-weight:900;color:{{ s.color }};line-height:1;">{{ s.v }}</div><div style="font-size:12.5px;color:var(--muted);font-weight:600;margin-top:5px;">{{ s.l }}</div></div></sc-for>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadowSm);overflow:hidden;">
+          <div style="display:grid;grid-template-columns:0.9fr 2.2fr 1fr 1.1fr 1.4fr 0.7fr 0.9fr;gap:10px;padding:15px 18px;font-size:11.5px;font-weight:700;color:var(--faint);border-bottom:1px solid var(--line);background:var(--panel2);"><sc-for list="{{ inspCols }}" as="c" hint-placeholder-count="7"><span onClick="{{ c.onSort }}" style="display:flex;align-items:center;gap:3px;cursor:pointer;user-select:none;color:{{ c.color }};" style-hover="color:var(--text);">{{ c.label }}{{ c.arrow }}</span></sc-for></div>
+          <sc-for list="{{ inspections }}" as="v" hint-placeholder-count="8">
+            <div onClick="{{ v.onReport }}" style="display:grid;grid-template-columns:0.9fr 2.2fr 1fr 1.1fr 1.4fr 0.7fr 0.9fr;gap:10px;align-items:center;padding:13px 18px;border-bottom:1px solid color-mix(in oklab,var(--line) 55%,transparent);font-size:13px;cursor:pointer;" style-hover="background:var(--panel2);"><span style="font-family:monospace;font-size:11px;color:var(--faint);">{{ v.id }}</span><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ v.inst }}</span><span style="color:var(--muted);">{{ v.type }}</span><span style="color:var(--muted);">{{ v.date }}</span><span style="color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ v.inspector }}</span><span style="font-weight:900;color:{{ v.scoreColor }};">{{ v.score }}</span><span style="{{ v.resultCss }}">{{ v.resLabel }}</span></div>
+          </sc-for>
+        </div>
+      </div></sc-if>
+
+      <sc-if value="{{ isViolations }}"><div data-screen-label="المخالفات" style="animation:fadeUp .4s ease;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+          <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:22px;font-weight:900;">المخالفات والإجراءات</span><span style="font-size:13.5px;color:var(--muted);">{{ vioCount }} مخالفة مسجّلة · {{ vioOpenCount }} مفتوحة</span></div>
+          <sc-if value="{{ canWrite }}"><button onClick="{{ addViolation }}" style="display:flex;align-items:center;gap:7px;background:linear-gradient(120deg,var(--accent),var(--accent2));border:0;border-radius:11px;padding:11px 17px;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 8px 18px -8px var(--accent);">{{ icons.plus }}<span>تسجيل مخالفة</span></button></sc-if>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadowSm);overflow:hidden;">
+          <sc-if value="{{ vioHasSel }}"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 18px;background:color-mix(in oklab,var(--accent2) 12%,transparent);border-bottom:1px solid var(--line);"><span style="font-size:12.5px;font-weight:800;color:var(--accent2);">{{ vioSelText }}</span><button onClick="{{ bulkDeleteVio }}" style="display:flex;align-items:center;gap:6px;border:1px solid var(--red);background:transparent;color:var(--red);border-radius:9px;padding:7px 13px;font-size:12.5px;font-weight:800;cursor:pointer;" style-hover="background:color-mix(in oklab,var(--red) 12%,transparent);">{{ icons.trash }}حذف المحدد</button></div></sc-if>
+          <div style="display:grid;grid-template-columns:0.4fr 1.2fr 2fr 1.8fr 0.9fr 1.1fr 1.1fr 1fr 0.6fr;gap:10px;padding:15px 18px;font-size:11.5px;font-weight:700;color:var(--faint);border-bottom:1px solid var(--line);background:var(--panel2);" data-comment-anchor="74a0b25856-div"><span style="display:flex;align-items:center;"><sc-if value="{{ canDelete }}"><span onClick="{{ onVioSelAll }}" title="تحديد الكل" style="width:18px;height:18px;border-radius:5px;border:2px solid {{ vioAllBorder }};background:{{ vioAllBg }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;cursor:pointer;">{{ vioAllCheck }}</span></sc-if></span><sc-for list="{{ vioCols }}" as="c" hint-placeholder-count="7"><span onClick="{{ c.onSort }}" style="display:flex;align-items:center;gap:3px;cursor:pointer;user-select:none;color:{{ c.color }};" style-hover="color:var(--text);">{{ c.label }}{{ c.arrow }}</span></sc-for><span></span></div>
+          <sc-for list="{{ violations }}" as="v" hint-placeholder-count="6">
+            <div style="display:grid;grid-template-columns:0.4fr 1.2fr 2fr 1.8fr 0.9fr 1.1fr 1.1fr 1fr 0.6fr;gap:10px;align-items:center;padding:13px 18px;border-bottom:1px solid color-mix(in oklab,var(--line) 55%,transparent);font-size:12.5px;" style-hover="background:var(--panel2);" data-comment-anchor="96064727f0-div"><span style="display:flex;align-items:center;"><sc-if value="{{ canDelete }}"><span onClick="{{ v.onSel }}" style="width:18px;height:18px;border-radius:5px;border:2px solid {{ v.selBorder }};background:{{ v.selBg }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;cursor:pointer;flex-shrink:0;">{{ v.selCheck }}</span></sc-if></span><span style="font-family:monospace;font-size:11px;color:var(--faint);">{{ v.id }}</span><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ v.inst }}</span><span style="color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ v.cat }}</span><span style="{{ v.sevCss }}">{{ v.sevLabel }}</span><span style="color:var(--muted);">{{ v.date }}</span><span style="color:var(--muted);">{{ v.due }}</span><span style="{{ v.statusCss }}">{{ v.statusLabel }}</span><div style="display:flex;justify-content:flex-end;"><sc-if value="{{ canDelete }}"><button onClick="{{ v.onDelete }}" title="حذف المخالفة" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;flex-shrink:0;" style-hover="color:var(--red);border-color:var(--red);">{{ icons.trash }}</button></sc-if></div></div>
+          </sc-for>
+        </div>
+      </div></sc-if>
+
+      <sc-if value="{{ isComplaints }}"><div data-screen-label="الشكاوى" style="animation:fadeUp .4s ease;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+          <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:22px;font-weight:900;">الشكاوى</span><span style="font-size:13.5px;color:var(--muted);">{{ cmpCount }} شكوى · {{ cmpOpenCount }} قيد المعالجة</span></div>
+          <sc-if value="{{ canWrite }}"><button onClick="{{ addComplaint }}" style="display:flex;align-items:center;gap:7px;background:linear-gradient(120deg,var(--accent),var(--accent2));border:0;border-radius:11px;padding:11px 17px;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 8px 18px -8px var(--accent);">{{ icons.plus }}<span>تسجيل شكوى</span></button></sc-if>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadowSm);overflow:hidden;">
+          <sc-if value="{{ cmpHasSel }}"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 18px;background:color-mix(in oklab,var(--accent2) 12%,transparent);border-bottom:1px solid var(--line);"><span style="font-size:12.5px;font-weight:800;color:var(--accent2);">{{ cmpSelText }}</span><button onClick="{{ bulkDeleteCmp }}" style="display:flex;align-items:center;gap:6px;border:1px solid var(--red);background:transparent;color:var(--red);border-radius:9px;padding:7px 13px;font-size:12.5px;font-weight:800;cursor:pointer;" style-hover="background:color-mix(in oklab,var(--red) 12%,transparent);">{{ icons.trash }}حذف المحدد</button></div></sc-if>
+          <div style="display:grid;grid-template-columns:0.4fr 1.3fr 2fr 1.4fr 1.4fr 1.1fr 1.1fr 0.6fr;gap:10px;padding:15px 18px;font-size:11.5px;font-weight:700;color:var(--faint);border-bottom:1px solid var(--line);background:var(--panel2);"><span style="display:flex;align-items:center;"><sc-if value="{{ canDelete }}"><span onClick="{{ onCmpSelAll }}" title="تحديد الكل" style="width:18px;height:18px;border-radius:5px;border:2px solid {{ cmpAllBorder }};background:{{ cmpAllBg }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;cursor:pointer;">{{ cmpAllCheck }}</span></sc-if></span><sc-for list="{{ cmpCols }}" as="c" hint-placeholder-count="6"><span data-comment-anchor="654f2fbf93-span" onClick="{{ c.onSort }}" style="display:flex;align-items:center;gap:3px;cursor:pointer;user-select:none;color:{{ c.color }};" style-hover="color:var(--text);">{{ c.label }}{{ c.arrow }}</span></sc-for><span></span></div>
+          <sc-for list="{{ complaints }}" as="c" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:0.4fr 1.3fr 2fr 1.4fr 1.4fr 1.1fr 1.1fr 0.6fr;gap:10px;align-items:center;padding:13px 18px;border-bottom:1px solid color-mix(in oklab,var(--line) 55%,transparent);font-size:12.5px;" style-hover="background:var(--panel2);" data-comment-anchor="43fec0ab02-div"><span style="display:flex;align-items:center;"><sc-if value="{{ canDelete }}"><span onClick="{{ c.onSel }}" style="width:18px;height:18px;border-radius:5px;border:2px solid {{ c.selBorder }};background:{{ c.selBg }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;cursor:pointer;flex-shrink:0;">{{ c.selCheck }}</span></sc-if></span><span style="font-family:monospace;font-size:11px;color:var(--faint);">{{ c.ref }}</span><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.inst }}</span><span style="color:var(--muted);">{{ c.cat }}</span><span style="color:var(--muted);">{{ c.channel }}</span><span style="color:var(--muted);">{{ c.date }}</span><span style="{{ c.statusCss }}">{{ c.statusLabel }}</span><div style="display:flex;justify-content:flex-end;"><sc-if value="{{ canDelete }}"><button onClick="{{ c.onDelete }}" title="حذف الشكوى" style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;flex-shrink:0;" style-hover="color:var(--red);border-color:var(--red);">{{ icons.trash }}</button></sc-if></div></div>
+          </sc-for>
+        </div>
+      </div></sc-if>
+
+      <sc-if value="{{ isReports }}"><div data-screen-label="التقارير" style="animation:fadeUp .4s ease;">
+        <div style="display:flex;flex-direction:column;gap:3px;margin-bottom:18px;"><span style="font-size:22px;font-weight:900;">التقارير</span><span style="font-size:13.5px;color:var(--muted);">صدّر بيانات النظام كملف CSV جاهز للفتح في Excel</span></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+          <sc-for list="{{ reports }}" as="r" hint-placeholder-count="6">
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadowSm);display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;align-items:center;gap:13px;"><div style="width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;color:{{ r.color }};background:color-mix(in oklab,{{ r.color }} 15%,transparent);flex-shrink:0;">{{ r.icon }}</div><div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:15.5px;font-weight:800;">{{ r.t }}</span><span style="font-size:12.5px;color:var(--muted);line-height:1.5;">{{ r.d }}</span></div></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:6px;border-top:1px solid var(--line);gap:8px;"><span style="font-size:12px;color:var(--faint);font-weight:700;" data-comment-anchor="ba5245847c-span">{{ r.count }} سجل</span><div style="display:flex;align-items:center;gap:7px;"><button onClick="{{ r.onView }}" style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;" style-hover="background:var(--panel2);">{{ icons.eye }}عرض</button><button onClick="{{ r.onPrint }}" style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;" style-hover="background:var(--panel2);">{{ icons.print }}طباعة</button><button onClick="{{ r.onExport }}" style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--accent2);border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;" style-hover="background:var(--accentSoft);">{{ icons.down }}CSV</button></div></div>
+            </div>
+          </sc-for>
+        </div>
+      </div></sc-if>
+
+      <sc-if value="{{ isTeam }}"><div data-screen-label="المستخدمون والصلاحيات" style="animation:fadeUp .4s ease;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+          <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:22px;font-weight:900;">المستخدمون والصلاحيات</span><span style="font-size:13.5px;color:var(--muted);">{{ teamCount }} مستخدم · مدير النظام يضيف المستخدمين ويحدّد صلاحياتهم</span></div>
+          <sc-if value="{{ canAddUser }}"><button onClick="{{ addUser }}" style="display:flex;align-items:center;gap:7px;background:linear-gradient(120deg,var(--accent),var(--accent2));border:0;border-radius:11px;padding:11px 17px;font-size:13.5px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 8px 18px -8px var(--accent);">{{ icons.plus }}<span>إضافة مستخدم</span></button></sc-if>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;">
+          <sc-for list="{{ userStats }}" as="s" hint-placeholder-count="4"><div style="background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px;box-shadow:var(--shadowSm);"><div style="font-size:26px;font-weight:900;color:{{ s.color }};line-height:1;">{{ s.v }}</div><div style="font-size:12.5px;color:var(--muted);font-weight:600;margin-top:5px;">{{ s.l }}</div></div></sc-for>
+        </div>
+        <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadowSm);overflow:hidden;">
+          <div style="display:grid;grid-template-columns:2fr 1.2fr 1.3fr 1.6fr 0.8fr 1.2fr;gap:12px;padding:15px 18px;font-size:11.5px;font-weight:700;color:var(--faint);border-bottom:1px solid var(--line);background:var(--panel2);"><span>المستخدم</span><span>اسم الدخول</span><span>الصلاحية</span><span>المؤسسات المُسندة</span><span>الحالة</span><span>إجراءات</span></div>
+          <sc-for list="{{ users }}" as="u" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:2fr 1.2fr 1.3fr 1.6fr 0.8fr 1.2fr;gap:12px;align-items:center;padding:14px 18px;border-bottom:1px solid color-mix(in oklab,var(--line) 55%,transparent);font-size:13px;" style-hover="background:var(--panel2);">
+              <div style="display:flex;align-items:center;gap:11px;min-width:0;"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(140deg,#3a5b86,#1f3a5c);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;">{{ u.init }}</div><span style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ u.name }}</span></div>
+              <span style="color:var(--muted);font-family:monospace;font-size:12px;">{{ u.username }}</span>
+              <span style="{{ u.roleCss }}">{{ u.role }}</span>
+              <span style="color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ u.assignedLabel }}</span>
+              <span style="{{ u.activeCss }}">{{ u.activeLabel }}</span>
+              <div style="display:flex;align-items:center;gap:7px;">
+                <sc-if value="{{ u.canAssign }}"><button onClick="{{ u.onAssign }}" title="إسناد مؤسسات" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--accent2);cursor:pointer;" style-hover="background:var(--accentSoft);">{{ icons.building }}</button></sc-if>
+                <sc-if value="{{ u.canEdit }}"><button onClick="{{ u.onEdit }}" title="تعديل" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;" style-hover="color:var(--text);">{{ icons.edit }}</button></sc-if>
+                <sc-if value="{{ u.canDelete }}"><button onClick="{{ u.onDelete }}" title="حذف" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;" style-hover="color:var(--red);">{{ icons.trash }}</button></sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div></sc-if>
+
+      <sc-if value="{{ isMyInst }}"><div data-screen-label="منشأتي" style="animation:fadeUp .4s ease;">
+        <sc-if value="{{ noMyInst }}"><div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:40px;text-align:center;color:var(--faint);font-size:14px;">لم يتم ربط حسابك بأي منشأة بعد. يرجى التواصل مع الإدارة.</div></sc-if>
+        <sc-if value="{{ hasMyInst }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;">
+            <div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:22px;font-weight:900;">{{ myInst.name }}</span><span style="font-size:13.5px;color:var(--muted);">{{ myInst.license }} · {{ myInst.gov }} · سعة {{ myInst.capacity }} طفل</span></div>
+            <div style="display:flex;align-items:center;gap:10px;"><span style="{{ myInst.statusCss }}">{{ myInst.status }}</span><button onClick="{{ printMyInst }}" style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer;">{{ icons.print }}طباعة السجل</button></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px;">
+            <sc-for list="{{ myStats }}" as="s" hint-placeholder-count="3"><div style="background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:15px;box-shadow:var(--shadowSm);"><div style="font-size:26px;font-weight:900;color:{{ s.color }};line-height:1;">{{ s.v }}</div><div style="font-size:12.5px;color:var(--muted);font-weight:600;margin-top:5px;">{{ s.l }}</div></div></sc-for>
+          </div>
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadowSm);overflow:hidden;">
+            <div style="padding:16px 18px;border-bottom:1px solid var(--line);background:var(--panel2);display:flex;align-items:center;justify-content:space-between;"><span style="font-size:15px;font-weight:800;">بنود التفتيش — تسليم الرد ومتابعة الاستجابات</span><span style="font-size:11.5px;color:var(--faint);font-weight:700;">{{ myRespondedCount }}/{{ myItemCount }} بند تمت معالجته</span></div>
+            <div style="display:flex;flex-direction:column;">
+              <sc-for list="{{ myAxes }}" as="ax" hint-placeholder-count="4">
+                <div style="border-bottom:1px solid color-mix(in oklab,var(--line) 50%,transparent);">
+                  <div style="padding:11px 18px;background:color-mix(in oklab,var(--panel2) 60%,transparent);font-size:13.5px;font-weight:800;">{{ ax.axis }}</div>
+                  <sc-for list="{{ ax.items }}" as="it" hint-placeholder-count="3">
+                    <div style="display:grid;grid-template-columns:2.4fr 1.1fr 1.1fr;gap:12px;align-items:center;padding:12px 18px;border-top:1px solid color-mix(in oklab,var(--line) 40%,transparent);">
+                      <div style="display:flex;flex-direction:column;gap:3px;min-width:0;"><span style="font-size:12.5px;line-height:1.5;">{{ it.item }}</span><sc-if value="{{ it.hasResp }}"><span style="font-size:11px;color:var(--faint);">ردّك: {{ it.respNote }}</span></sc-if></div>
+                      <span style="{{ it.statusCss }}">{{ it.statusLabel }}</span>
+                      <div style="display:flex;justify-content:flex-end;"><button onClick="{{ it.onRespond }}" style="display:flex;align-items:center;gap:5px;border:1px solid var(--line);background:transparent;color:var(--accent2);border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;" style-hover="background:var(--accentSoft);">{{ it.btnLabel }}</button></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div></sc-if>
+
+      <sc-if value="{{ isAgent }}"><div data-screen-label="ECE Agent" style="animation:fadeUp .4s ease;height:calc(100vh - 168px);display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;gap:13px;margin-bottom:16px;flex-shrink:0;">
+          <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(140deg,var(--accent),var(--accent2));color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px -6px var(--accent);">{{ icons.spark }}</div>
+          <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:9px;"><span style="font-size:20px;font-weight:900;">ECE Agent</span><span style="font-size:10.5px;font-weight:800;color:var(--accent2);background:color-mix(in oklab,var(--accent2) 14%,transparent);border:1px solid color-mix(in oklab,var(--accent2) 30%,transparent);padding:2px 8px;border-radius:999px;">مدعوم بالذكاء الاصطناعي</span></div>
+            <span style="font-size:12.5px;color:var(--muted);">اسأل عن أي بيانات أو تقارير في النظام — يجيب فوراً من بيانات النظام نفسها</span>
+          </div>
+          <sc-if value="{{ hasAgentMsgs }}"><button onClick="{{ clearAgent }}" style="display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;flex-shrink:0;" style-hover="color:var(--text);">محادثة جديدة</button></sc-if>
+        </div>
+
+        <div style="flex:1;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px;">
+          <sc-if value="{{ agentEmpty }}">
+            <div style="margin:auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;max-width:560px;padding:20px 0;">
+              <div style="width:62px;height:62px;border-radius:18px;background:linear-gradient(140deg,color-mix(in oklab,var(--accent) 22%,var(--panel)),var(--panel));border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--accent2);">{{ icons.spark }}</div>
+              <div style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:17px;font-weight:800;">كيف يمكنني مساعدتك؟</span><span style="font-size:13px;color:var(--muted);line-height:1.6;">اطرح سؤالاً بصياغة طبيعية حول المؤسسات أو التراخيص أو المخالفات أو التقارير. {{ agentScope }}.</span></div>
+              <div style="display:flex;flex-direction:column;gap:9px;width:100%;">
+                <sc-for list="{{ agentSuggestions }}" as="s" hint-placeholder-count="4">
+                  <div onClick="{{ s.onPick }}" style="display:flex;align-items:center;gap:10px;text-align:right;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 15px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text);" style-hover="border-color:var(--accent2);background:color-mix(in oklab,var(--accent2) 8%,var(--panel2));"><span style="color:var(--accent2);display:flex;flex-shrink:0;">{{ icons.spark }}</span><span>{{ s.text }}</span></div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+          <sc-for list="{{ agentMsgs }}" as="m" hint-placeholder-count="0">
+            <div style="display:flex;justify-content:{{ m.rowJustify }};">
+              <div style="max-width:74%;background:{{ m.bubbleBg }};color:{{ m.bubbleColor }};border:1px solid {{ m.bubbleBorder }};border-radius:15px;padding:12px 15px;font-size:13.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;box-shadow:0 2px 8px -4px rgba(4,9,18,.25);">{{ m.content }}</div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ agentBusy }}">
+            <div style="display:flex;justify-content:flex-start;"><div style="background:var(--panel2);border:1px solid var(--line);border-radius:15px;padding:13px 17px;display:flex;align-items:center;gap:5px;"><span style="width:7px;height:7px;border-radius:50%;background:var(--accent2);animation:agdot 1s infinite ease-in-out;"></span><span style="width:7px;height:7px;border-radius:50%;background:var(--accent2);animation:agdot 1s .2s infinite ease-in-out;"></span><span style="width:7px;height:7px;border-radius:50%;background:var(--accent2);animation:agdot 1s .4s infinite ease-in-out;"></span></div></div>
+          </sc-if>
+        </div>
+
+        <div style="margin-top:14px;flex-shrink:0;display:flex;align-items:flex-end;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:9px 9px 9px 14px;">
+          <textarea value="{{ agentInput }}" onInput="{{ onAgentInput }}" onKeyDown="{{ onAgentKey }}" placeholder="اكتب سؤالك هنا… مثال: كم مؤسسة ينتهي ترخيصها هذا الشهر؟" rows="1" style="flex:1;border:0;background:transparent;color:var(--text);font-size:13.5px;line-height:1.6;outline:none;resize:none;max-height:120px;font-family:inherit;padding:7px 0;"></textarea>
+          <sc-if value="{{ agentCanSend }}"><button onClick="{{ askAgent }}" title="إرسال" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:11px;border:0;background:linear-gradient(120deg,var(--accent),var(--accent2));color:#fff;cursor:pointer;flex-shrink:0;box-shadow:0 6px 14px -6px var(--accent);">{{ icons.send }}</button></sc-if>
+          <sc-if value="{{ agentBusy }}"><div style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:11px;background:var(--panel2);flex-shrink:0;"><div style="width:18px;height:18px;border:2px solid var(--line);border-top-color:var(--accent2);border-radius:50%;animation:spin .8s linear infinite;"></div></div></sc-if>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--faint);text-align:center;flex-shrink:0;">قد يُخطئ المساعد أحياناً — تحقّق من البيانات الحسّاسة من سجلّاتها الأصلية.</div>
+      </div></sc-if>
+
+    </main>
+
+    <footer style="padding:16px 24px;text-align:center;color:var(--faint);font-size:12px;border-top:1px solid var(--line);">نظام إلكتروني داخلي — إدارة تراخيص ومتابعة مؤسسات التعليم المبكر · وزارة التربية والتعليم، مملكة البحرين © 2026 · <span onClick="{{ resetDemo }}" style="cursor:pointer;text-decoration:underline;">إعادة ضبط البيانات التجريبية</span></footer>
+  </div>
+
+  <sc-if value="{{ instOpen }}">
+    <div onClick="{{ closeInst }}" style="position:fixed;inset:0;background:rgba(4,9,18,.6);z-index:60;backdrop-filter:blur(2px);"></div>
+    <div style="position:fixed;top:0;left:0;height:100vh;width:min(560px,100%);background:var(--bg2);border-right:1px solid var(--line);z-index:61;display:flex;flex-direction:column;box-shadow:var(--shadow);animation:slideIn .3s cubic-bezier(.4,0,.2,1);">
+      <div style="padding:22px;border-bottom:1px solid var(--line);background:linear-gradient(130deg,color-mix(in oklab,var(--accent) 22%,var(--bg2)),var(--bg2));">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+          <div style="display:flex;align-items:center;gap:14px;"><div style="width:54px;height:54px;border-radius:15px;background:linear-gradient(140deg,var(--accent),var(--accent2));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;box-shadow:0 8px 18px -6px var(--accent);">{{ sel.initial }}</div><div style="display:flex;flex-direction:column;gap:5px;"><span style="font-size:19px;font-weight:900;">{{ sel.name }}</span><div style="display:flex;align-items:center;gap:8px;"><span style="{{ sel.statusCss }}">{{ sel.status }}</span><span style="font-size:12px;color:var(--muted);font-family:monospace;">{{ sel.license }}</span></div></div></div>
+          <button onClick="{{ closeInst }}" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;flex-shrink:0;" style-hover="color:var(--text);">{{ icons.close }}</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:16px;flex-wrap:wrap;">
+          <button onClick="{{ printInst }}" style="display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;">{{ icons.print }}طباعة السجل</button>
+          <sc-if value="{{ canManage }}"><button onClick="{{ editInst }}" style="display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;">{{ icons.edit }}تعديل</button></sc-if>
+          <sc-if value="{{ canManage }}"><button onClick="{{ uploadTrigger }}" style="display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;">{{ icons.upload }}رفع مستند</button></sc-if>
+          <sc-if value="{{ canDelete }}"><button onClick="{{ confirmDeleteInst }}" style="display:flex;align-items:center;gap:6px;background:transparent;border:1px solid color-mix(in oklab,var(--red) 40%,transparent);color:var(--red);border-radius:10px;padding:8px 13px;font-size:12.5px;font-weight:700;cursor:pointer;">{{ icons.trash }}حذف</button></sc-if>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px;overflow-x:auto;">
+          <sc-for list="{{ instTabs }}" as="tab" hint-placeholder-count="4">
+            <sc-if value="{{ tab.active }}"><div onClick="{{ tab.onClick }}" style="padding:8px 15px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;background:var(--accent2);color:#fff;">{{ tab.label }}<sc-if value="{{ tab.count }}"> · {{ tab.count }}</sc-if></div></sc-if>
+            <sc-if value="{{ tab.inactive }}"><div onClick="{{ tab.onClick }}" style="padding:8px 15px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;background:var(--panel);color:var(--muted);border:1px solid var(--line);">{{ tab.label }}<sc-if value="{{ tab.count }}"> · {{ tab.count }}</sc-if></div></sc-if>
+          </sc-for>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:22px;">
+        <sc-if value="{{ tabData }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;">
+            <sc-for list="{{ instInfo }}" as="f" hint-placeholder-count="8"><div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;{{ f.span }}"><div style="font-size:11.5px;color:var(--faint);font-weight:600;margin-bottom:4px;">{{ f.k }}</div><div style="font-size:14px;font-weight:700;{{ f.dir }}">{{ f.v }}</div></div></sc-for>
+          </div>
+          <div style="margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-size:13.5px;font-weight:700;" data-comment-anchor="b5c03d25bf-span">نسبة الالتزام العامة</span><span style="font-size:18px;font-weight:900;color:{{ sel.compColor }};">{{ sel.compValueLabel }}</span></div><div style="height:10px;border-radius:6px;background:var(--panel2);overflow:hidden;"><div style="height:100%;width:{{ sel.compW }};background:{{ sel.compColor }};border-radius:6px;"></div></div><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--faint);margin-top:9px;">{{ icons.inspect }}<span>{{ sel.compNote }}</span></div></div>
+          <sc-if value="{{ canWrite }}"><button onClick="{{ inspectSel }}" style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:0;border-radius:12px;padding:13px;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;background:linear-gradient(120deg,var(--accent),var(--accent2));box-shadow:0 8px 18px -8px var(--accent);">{{ icons.inspect }}إدخال بنود التفتيش واحتساب نسبة الالتزام</button></sc-if>
+        </sc-if>
+        <sc-if value="{{ tabAttach }}">
+          <div onClick="{{ uploadTrigger }}" style="border:2px dashed var(--line);border-radius:14px;padding:22px;text-align:center;cursor:pointer;margin-bottom:14px;color:var(--muted);" style-hover="border-color:var(--accent2);color:var(--accent2);"><div style="display:flex;justify-content:center;margin-bottom:8px;">{{ icons.upload }}</div><div style="font-size:13.5px;font-weight:700;">اسحب ملفاً هنا أو اضغط للرفع</div><div style="font-size:11.5px;color:var(--faint);margin-top:3px;">يُحفظ في التخزين السحابي المحلي (PDF، صور، مستندات)</div></div>
+          <sc-if value="{{ filesLoading }}"><div style="display:flex;justify-content:center;padding:20px;"><div style="width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--accent2);border-radius:50%;animation:spin .8s linear infinite;"></div></div></sc-if>
+          <sc-if value="{{ filesEmpty }}"><div style="text-align:center;color:var(--faint);font-size:13px;padding:14px;">لا توجد مستندات مرفوعة بعد</div></sc-if>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <sc-for list="{{ files }}" as="f" hint-placeholder-count="0">
+              <div style="display:flex;align-items:center;gap:13px;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:13px;">
+                <div style="width:40px;height:40px;border-radius:11px;background:color-mix(in oklab,var(--accent2) 13%,transparent);color:var(--accent2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">{{ icons.file }}</div>
+                <div style="display:flex;flex-direction:column;flex:1;min-width:0;"><span style="font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ f.name }}</span><span style="font-size:11.5px;color:var(--faint);">{{ f.tag }} · {{ f.sizeLabel }} · {{ f.atLabel }}</span></div>
+                <button onClick="{{ f.onDownload }}" title="تنزيل" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;flex-shrink:0;" style-hover="color:var(--accent2);">{{ icons.down }}</button>
+                <sc-if value="{{ canManage }}"><button onClick="{{ f.onDelete }}" title="حذف" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;flex-shrink:0;" style-hover="color:var(--red);">{{ icons.trash }}</button></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ tabLicense }}">
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:12px;color:var(--faint);font-weight:600;">تاريخ انتهاء الترخيص الحالي</span><span style="font-size:16px;font-weight:800;">{{ sel.expiry }}</span><span style="font-size:11.5px;font-weight:700;color:{{ sel.stageColor }};">{{ sel.daysLabel }}</span></div><sc-if value="{{ canManage }}"><button onClick="{{ renewSel }}" style="background:linear-gradient(120deg,var(--accent),var(--accent2));border:0;border-radius:11px;padding:10px 16px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;">تجديد الترخيص</button></sc-if></div>
+          <div style="position:relative;padding-right:18px;"><sc-for list="{{ licHistory }}" as="h" hint-placeholder-count="3"><div style="position:relative;padding-bottom:18px;border-right:2px solid var(--line);padding-right:20px;"><span style="position:absolute;right:-7px;top:2px;width:12px;height:12px;border-radius:50%;background:{{ h.dot }};border:3px solid var(--bg2);"></span><div style="font-size:13.5px;font-weight:700;">{{ h.action }}</div><div style="font-size:12px;color:var(--muted);">{{ h.date }} · {{ h.by }}</div></div></sc-for></div>
+        </sc-if>
+        <sc-if value="{{ tabVisits }}">
+          <sc-if value="{{ selVisitsEmpty }}"><div style="text-align:center;color:var(--faint);font-size:13px;padding:20px;">لا توجد زيارات مسجّلة لهذه المؤسسة</div></sc-if>
+          <div style="display:flex;flex-direction:column;gap:11px;"><sc-for list="{{ selVisits }}" as="v" hint-placeholder-count="0"><div style="background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;"><div style="display:flex;flex-direction:column;gap:3px;"><span style="font-size:13.5px;font-weight:700;">زيارة {{ v.type }}</span><span style="font-size:12px;color:var(--muted);">{{ v.date }} · {{ v.inspector }}</span></div><div style="display:flex;align-items:center;gap:12px;"><div style="display:flex;flex-direction:column;align-items:center;"><span style="font-size:17px;font-weight:900;color:{{ v.scoreColor }};">{{ v.score }}</span><span style="font-size:10px;color:var(--faint);">التقييم</span></div><span style="{{ v.resultCss }}">{{ v.resLabel }}</span></div></div></sc-for></div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ recViewOpen }}">
+    <div onClick="{{ closeRecView }}" style="position:fixed;inset:0;background:rgba(4,9,18,.6);z-index:70;backdrop-filter:blur(2px);"></div>
+    <div style="position:fixed;inset:0;z-index:71;display:flex;align-items:flex-start;justify-content:center;padding:34px 18px;overflow-y:auto;pointer-events:none;">
+      <div style="pointer-events:auto;width:min(900px,100%);background:var(--bg2);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);animation:pop .25s ease;display:flex;flex-direction:column;max-height:calc(100vh - 68px);">
+        <div style="padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;flex-shrink:0;">
+          <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;"><span style="font-size:17px;font-weight:900;">{{ recView.title }}</span><span style="font-size:12px;color:var(--muted);">عرض {{ recView.shown }} من {{ recView.total }} سجل</span></div>
+          <button onClick="{{ onRecPrint }}" style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;flex-shrink:0;" style-hover="background:var(--panel2);">{{ icons.print }}طباعة</button>
+          <button onClick="{{ onRecExport }}" style="display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--accent2);border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;flex-shrink:0;" style-hover="background:var(--accentSoft);">{{ icons.down }}CSV</button>
+          <button onClick="{{ closeRecView }}" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;flex-shrink:0;" style-hover="color:var(--text);">{{ icons.close }}</button>
+        </div>
+        <div style="padding:14px 20px;border-bottom:1px solid var(--line);flex-shrink:0;">
+          <div style="display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:0 13px;height:42px;"><span style="display:flex;color:var(--faint);">{{ icons.search }}</span><input value="{{ recView.q }}" onInput="{{ onRecQ }}" placeholder="بحث داخل السجلات…" style="flex:1;border:0;background:transparent;color:var(--text);font-size:13.5px;outline:none;"></div>
+        </div>
+        <div style="flex:1;overflow:auto;padding:0 4px 4px;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead><tr>
+              <sc-for list="{{ recView.head }}" as="h" hint-placeholder-count="6"><th style="position:sticky;top:0;background:var(--panel2);text-align:right;font-weight:800;color:var(--muted);font-size:11.5px;padding:12px 16px;border-bottom:1px solid var(--line);white-space:nowrap;">{{ h.label }}</th></sc-for>
+            </tr></thead>
+            <tbody>
+              <sc-for list="{{ recView.rows }}" as="row" hint-placeholder-count="8">
+                <tr style="border-bottom:1px solid color-mix(in oklab,var(--line) 55%,transparent);">
+                  <sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="6"><td style="padding:11px 16px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;">{{ c.v }}</td></sc-for>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+          <sc-if value="{{ recView.noResults }}"><div style="text-align:center;color:var(--faint);font-size:13px;padding:30px;">لا توجد سجلات مطابقة للبحث</div></sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ formModalOpen }}">
+    <div onClick="{{ closeModal }}" style="position:fixed;inset:0;background:rgba(4,9,18,.6);z-index:70;backdrop-filter:blur(2px);"></div>
+    <div style="position:fixed;inset:0;z-index:71;display:flex;align-items:flex-start;justify-content:center;padding:34px 18px;overflow-y:auto;pointer-events:none;">
+      <div style="pointer-events:auto;width:min({{ modalWidth }},100%);background:var(--bg2);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);animation:pop .3s ease;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--line);"><span style="font-size:17px;font-weight:900;">{{ modalTitle }}</span><button onClick="{{ closeModal }}" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--muted);cursor:pointer;">{{ icons.close }}</button></div>
+        <div style="padding:22px;max-height:62vh;overflow-y:auto;">
+          <sc-if value="{{ isFormFields }}">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <sc-for list="{{ formFields }}" as="f" hint-placeholder-count="6">
+                <label style="display:flex;flex-direction:column;gap:6px;{{ f.span }}">
+                  <span style="font-size:12px;font-weight:700;color:var(--muted);">{{ f.label }}</span>
+                  <sc-if value="{{ f.isText }}"><input value="{{ f.value }}" onInput="{{ f.onInput }}" placeholder="{{ f.ph }}" style="height:42px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:0 12px;color:var(--text);font-size:13.5px;outline:none;"></sc-if>
+                  <sc-if value="{{ f.isSelect }}"><select value="{{ f.value }}" onChange="{{ f.onInput }}" style="height:42px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:0 12px;color:var(--text);font-size:13.5px;outline:none;cursor:pointer;" data-comment-anchor="7699765d40-select"><sc-for list="{{ f.options }}" as="o" hint-placeholder-count="3"><option value="{{ o }}">{{ o }}</option></sc-for></select></sc-if>
+                  <sc-if value="{{ f.isRange }}"><div style="display:flex;align-items:center;gap:12px;height:42px;"><input type="range" min="0" max="100" value="{{ f.value }}" onInput="{{ f.onInput }}" style="flex:1;accent-color:var(--accent2);"><span style="font-size:14px;font-weight:800;color:var(--accent2);width:44px;text-align:center;">{{ f.value }}%</span></div></sc-if>
+                  <sc-if value="{{ f.isArea }}"><textarea value="{{ f.value }}" onInput="{{ f.onInput }}" placeholder="{{ f.ph }}" style="min-height:80px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 12px;color:var(--text);font-size:13.5px;outline:none;resize:vertical;"></textarea></sc-if>
+                  <sc-if value="{{ f.isInfo }}"><div style="display:flex;align-items:center;gap:8px;min-height:42px;border:1px dashed var(--line);background:var(--panel2);border-radius:10px;padding:9px 12px;color:var(--muted);font-size:12.5px;line-height:1.5;">{{ icons.inspect }}<span>{{ f.value }}</span></div></sc-if>
+                </label>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isInspectForm }}">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+              <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 3;"><span style="font-size:12px;font-weight:700;color:var(--muted);">المؤسسة</span><select value="{{ inspInst }}" onChange="{{ onInspInst }}" style="height:42px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:0 12px;color:var(--text);font-size:13.5px;cursor:pointer;"><sc-for list="{{ instOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+              <label style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:12px;font-weight:700;color:var(--muted);">نوع الزيارة</span><select value="{{ inspType }}" onChange="{{ onInspType }}" style="height:42px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:0 12px;color:var(--text);font-size:13.5px;cursor:pointer;"><sc-for list="{{ visitTypeOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for></select></label>
+              <label style="display:flex;flex-direction:column;gap:6px;grid-column:span 2;"><span style="font-size:12px;font-weight:700;color:var(--muted);">المفتش</span><select value="{{ inspInspector }}" onChange="{{ onInspInspector }}" style="height:42px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:0 12px;color:var(--text);font-size:13.5px;cursor:pointer;" data-comment-anchor="87a43b562d-select"><sc-for list="{{ inspectorOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o }}">{{ o }}</option></sc-for></select></label>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:color-mix(in oklab,var(--accent2) 12%,transparent);border:1px solid color-mix(in oklab,var(--accent2) 28%,transparent);border-radius:12px;padding:13px 16px;margin-bottom:14px;" data-comment-anchor="60abe1c98e-div"><span style="font-size:13px;font-weight:700;color:var(--muted);" data-comment-anchor="9ccf314a33-span">النسبة الموزونة المحتسبة آلياً</span><div style="display:flex;align-items:center;gap:11px;"><span style="{{ inspVerdictCss }}">{{ inspVerdict }}</span><span style="font-size:24px;font-weight:900;color:{{ inspScoreColor }};">{{ inspScore }}%</span></div></div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <sc-for list="{{ inspAxes }}" as="ax" hint-placeholder-count="4">
+                <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 15px;background:var(--panel2);"><span style="font-size:13.5px;font-weight:800;">{{ ax.axis }}</span><span style="font-size:12px;font-weight:800;color:{{ ax.axisColor }};">{{ ax.axisPct }}%</span></div>
+                  <div style="display:flex;flex-direction:column;">
+                    <sc-for list="{{ ax.items }}" as="it" hint-placeholder-count="4">
+                      <div style="display:flex;align-items:center;gap:12px;padding:10px 15px;border-top:1px solid color-mix(in oklab,var(--line) 50%,transparent);flex-wrap:wrap;">
+                        <span style="flex:1;min-width:180px;font-size:12.5px;line-height:1.5;color:var(--text);">{{ it.item }}</span>
+                        <span style="font-size:10.5px;color:var(--faint);font-weight:700;white-space:nowrap;">وزن {{ it.weight }}%</span>
+                        <div style="display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex-shrink:0;">
+                          <sc-for list="{{ it.opts }}" as="op" hint-placeholder-count="4"><span onClick="{{ op.onPick }}" style="padding:6px 10px;font-size:11px;font-weight:800;cursor:pointer;border-right:1px solid color-mix(in oklab,var(--line) 60%,transparent);{{ op.css }}" data-comment-anchor="86c17019cd-span">{{ op.label }}</span></sc-for>
+                        </div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isAssign }}">
+            <div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6;">{{ assignHint }}</div>
+            <div style="display:flex;align-items:center;gap:9px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:0 13px;height:42px;color:var(--faint);margin-bottom:12px;">{{ icons.search }}<input value="{{ assignQ }}" onInput="{{ onAssignQ }}" placeholder="بحث عن مؤسسة…" style="border:0;background:transparent;outline:none;color:var(--text);font-size:13.5px;width:100%;"></div>
+            <div style="display:flex;flex-direction:column;gap:7px;max-height:38vh;overflow-y:auto;">
+              <sc-for list="{{ assignList }}" as="a" hint-placeholder-count="6">
+                <div style="display:flex;flex-direction:column;gap:0;background:var(--panel);border:1px solid {{ a.borderColor }};border-radius:11px;overflow:hidden;">
+                  <div onClick="{{ a.onToggle }}" style="display:flex;align-items:center;gap:12px;padding:11px 13px;cursor:pointer;">
+                    <div style="width:22px;height:22px;border-radius:6px;border:2px solid {{ a.boxBorder }};background:{{ a.boxBg }};display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">{{ a.check }}</div>
+                    <div style="display:flex;flex-direction:column;flex:1;min-width:0;"><span style="font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ a.name }}</span><span style="font-size:11px;color:var(--faint);">{{ a.meta }}</span></div>
+                  </div>
+                  <sc-if value="{{ a.showDate }}">
+                    <div style="display:flex;align-items:center;gap:9px;padding:10px 13px;border-top:1px dashed var(--line);background:var(--panel2);">
+                      <span style="display:flex;color:var(--accent2);flex-shrink:0;">{{ icons.cal }}</span>
+                      <span style="font-size:12px;font-weight:700;color:var(--muted);">موعد الزيارة</span>
+                      <input type="date" value="{{ a.dateVal }}" onInput="{{ a.onDate }}" style="margin-inline-start:auto;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:7px 10px;color:var(--text);font-size:12.5px;outline:none;font-family:inherit;">
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ assignHasSel }}">
+              <div style="display:flex;align-items:center;gap:12px;margin-top:14px;padding:13px 15px;background:var(--panel);border:1px solid var(--line);border-radius:12px;">
+                <span style="display:flex;color:var(--accent2);flex-shrink:0;">{{ icons.bell }}</span>
+                <div style="display:flex;flex-direction:column;flex:1;line-height:1.5;"><span style="font-size:13px;font-weight:700;">إشعار المفتش بالبريد الإلكتروني</span><span style="font-size:11px;color:var(--faint);">يصل إلى بريد المفتش قائمة المؤسسات المُسندة ومواعيد زيارتها</span></div>
+                <div onClick="{{ toggleAssignNotify }}" style="width:42px;height:24px;border-radius:999px;background:{{ assignNotifyBg }};position:relative;cursor:pointer;flex-shrink:0;transition:background .2s;"><span style="position:absolute;top:3px;{{ assignNotifyKnob }}:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);"></span></div>
+              </div>
+            </sc-if>
+          </sc-if>
+          <sc-if value="{{ isReport }}">
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr;gap:13px;">
+              <div style="display:flex;flex-direction:column;"><span style="font-size:11.5px;color:var(--faint);font-weight:600;">المؤسسة</span><span style="font-size:14px;font-weight:700;">{{ report.inst }}</span></div>
+              <div style="display:flex;flex-direction:column;"><span style="font-size:11.5px;color:var(--faint);font-weight:600;">رقم الزيارة</span><span style="font-size:14px;font-weight:700;font-family:monospace;">{{ report.id }}</span></div>
+              <div style="display:flex;flex-direction:column;"><span style="font-size:11.5px;color:var(--faint);font-weight:600;">المفتش</span><span style="font-size:14px;font-weight:700;">{{ report.inspector }}</span></div>
+              <div style="display:flex;flex-direction:column;"><span style="font-size:11.5px;color:var(--faint);font-weight:600;">التاريخ · النوع</span><span style="font-size:14px;font-weight:700;">{{ report.date }} · {{ report.type }}</span></div>
+              <div style="display:flex;align-items:center;gap:10px;grid-column:span 2;border-top:1px solid var(--line);padding-top:12px;"><span style="font-size:13px;color:var(--muted);font-weight:700;">نتيجة التقييم</span><span style="font-size:22px;font-weight:900;color:{{ report.scoreColor }};">{{ report.score }}%</span><span style="{{ report.resultCss }}">{{ report.resLabel }}</span></div>
+            </div>
+            <sc-if value="{{ report.hasAxes }}">
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;display:flex;flex-direction:column;gap:11px;">
+                <span style="font-size:12.5px;font-weight:800;color:var(--muted);">النسبة الموزونة حسب المحاور</span>
+                <sc-for list="{{ report.axes }}" as="ax" hint-placeholder-count="4">
+                  <div style="display:flex;flex-direction:column;gap:5px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:12.5px;font-weight:700;">{{ ax.axis }}</span><span style="font-size:12.5px;font-weight:800;color:{{ ax.color }};">{{ ax.pct }}%</span></div>
+                    <div style="height:7px;border-radius:5px;background:var(--panel2);overflow:hidden;"><div style="height:100%;width:{{ ax.w }};background:{{ ax.color }};border-radius:5px;"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <label style="display:flex;flex-direction:column;gap:6px;"><span style="font-size:12px;font-weight:700;color:var(--muted);">ملاحظات المفتش وتوصياته</span>
+              <sc-if value="{{ reportEditable }}"><textarea value="{{ reportNotes }}" onInput="{{ onReportNotes }}" placeholder="اكتب ملاحظات الزيارة والإجراءات المطلوبة…" style="min-height:120px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:11px 13px;color:var(--text);font-size:13.5px;outline:none;resize:vertical;line-height:1.6;"></textarea></sc-if>
+              <sc-if value="{{ reportReadonly }}"><div style="min-height:80px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:11px 13px;color:var(--text);font-size:13.5px;line-height:1.6;white-space:pre-wrap;">{{ reportNotesView }}</div></sc-if>
+            </label>
+            <button onClick="{{ printReport }}" style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:11px;padding:11px;font-size:13.5px;font-weight:700;cursor:pointer;">{{ icons.print }}معاينة وطباعة التقرير</button>
+            <sc-if value="{{ canDelete }}"><button onClick="{{ onDeleteReport }}" style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:1px solid color-mix(in oklab,var(--red) 40%,transparent);background:transparent;color:var(--red);border-radius:11px;padding:11px;font-size:13.5px;font-weight:700;cursor:pointer;" style-hover="background:color-mix(in oklab,var(--red) 10%,transparent);">{{ icons.trash }}حذف الزيارة التفتيشية</button></sc-if>
+          </sc-if>
+          <sc-if value="{{ isAlert }}">
+            <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:16px;">
+              <div style="width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:{{ alert.dot }};background:color-mix(in oklab,{{ alert.dot }} 14%,transparent);">{{ alert.icon }}</div>
+              <div style="display:flex;flex-direction:column;gap:4px;"><span style="font-size:15px;font-weight:800;line-height:1.5;">{{ alert.text }}</span><span style="font-size:12px;color:var(--faint);">{{ alert.time }} · {{ alert.kindLabel }}</span></div>
+            </div>
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:13px;color:var(--muted);line-height:1.7;">{{ alert.detail }}</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12px;color:var(--green);font-weight:700;">{{ icons.mail }}<span>{{ alert.emailNote }}</span></div>
+            <sc-if value="{{ alert.hasInst }}"><button onClick="{{ alert.onOpenInst }}" style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:7px;width:100%;border:0;border-radius:11px;padding:12px;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;background:linear-gradient(120deg,var(--accent),var(--accent2));box-shadow:0 8px 18px -8px var(--accent);">{{ icons.building }}فتح تقرير المؤسسة</button></sc-if>
+          </sc-if>
+          <sc-if value="{{ isConfirm }}"><div style="display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center;padding:6px 0;"><div style="width:54px;height:54px;border-radius:50%;background:color-mix(in oklab,var(--red) 14%,transparent);color:var(--red);display:flex;align-items:center;justify-content:center;">{{ icons.trash }}</div><span style="font-size:15px;font-weight:800;">{{ confirmText }}</span><span style="font-size:13px;color:var(--muted);">لا يمكن التراجع عن هذا الإجراء.</span></div></sc-if>
+          <sc-if value="{{ formError }}"><div style="margin-top:14px;font-size:12.5px;color:var(--red);font-weight:700;display:flex;align-items:center;gap:6px;">{{ icons.warn }}{{ formError }}</div></sc-if>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid var(--line);">
+          <button onClick="{{ closeModal }}" style="border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:11px;padding:11px 18px;font-size:13.5px;font-weight:700;cursor:pointer;">{{ cancelLabel }}</button>
+          <sc-if value="{{ showSubmit }}"><button onClick="{{ submitModal }}" style="border:0;border-radius:11px;padding:11px 20px;font-size:13.5px;font-weight:800;color:#fff;cursor:pointer;background:{{ submitBg }};box-shadow:0 8px 18px -8px var(--accent);">{{ submitLabel }}</button></sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toast }}"><div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid {{ toastColor }};border-right:4px solid {{ toastColor }};border-radius:13px;padding:13px 18px;box-shadow:var(--shadow);animation:pop .3s ease;"><span style="color:{{ toastColor }};display:flex;">{{ toastIcon }}</span><span style="font-size:13.5px;font-weight:700;">{{ toastMsg }}</span></div></sc-if>
+
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = {
+    ready:false, session:null, loginUser:'', loginPass:'', loginErr:'', msPicker:false,
+    theme:'dark', screen:'dashboard', navOpen:false, vw:1280,
+    sel:null, instTab:'data', files:[], filesLoading:false,
+    modal:null, form:{}, formError:'',
+    insp:null, assignQ:'', inspSort:{key:'date',dir:'desc'}, emailInput:'', emailErr:'', adminEmailDraft:null,
+    toast:null, saveTick:0,
+    q:'', fType:'', fGov:'', fStatus:'',
+    agentMsgs:[], agentInput:'', agentBusy:false,
+    recView:null, recQ:'', cmpSel:[], vioSel:[],
+    instSort:{key:'',dir:'asc'}, vioSort:{key:'',dir:'asc'}, cmpSort:{key:'',dir:'asc'}
+  };
+
+  componentDidMount(){
+    this._r=()=>this.setState({vw:window.innerWidth});
+    window.addEventListener('resize',this._r);
+    const seed = window.ECE_SEED;
+    if(window.ECEStore && seed){ window.ECEStore.init(seed); }
+    const sess = window.ECEStore ? window.ECEStore.getSession() : null;
+    this.setState({ ready:true, session:sess, screen:(sess&&sess.roleKey==='establishment')?'myinst':'dashboard', vw:window.innerWidth });
+  }
+  componentWillUnmount(){ window.removeEventListener('resize',this._r); }
+
+  db(){ return (window.ECEStore && window.ECEStore.load()) || window.ECE_SEED; }
+  persist(db){ window.ECEStore.save(db); this.setState(s=>({saveTick:s.saveTick+1})); this.forceUpdate(); }
+  toast(msg,tone){ if(this._tt)clearTimeout(this._tt); this.setState({toast:{msg,tone:tone||'green'}}); this._tt=setTimeout(()=>this.setState({toast:null}),2600); }
+
+  doLogin(){
+    const db=this.db();
+    const u=(db.users||[]).find(x=>x.username===this.state.loginUser.trim() && x.password===this.state.loginPass);
+    if(!u){ this.setState({loginErr:'بيانات الدخول غير صحيحة'}); return; }
+    const sess={id:u.id,username:u.username,name:u.name,role:u.role,roleKey:u.roleKey,init:u.init,instId:u.instId};
+    window.ECEStore.setSession(sess);
+    this.setState({session:sess,loginErr:'',loginPass:'',screen:u.roleKey==='establishment'?'myinst':'dashboard'});
+  }
+  loginAs(username){ const db=this.db(); const u=(db.users||[]).find(x=>x.username===username); if(u) this.setState({loginUser:u.username,loginPass:u.password},()=>this.doLogin()); }
+  openMs(){ this.setState({msPicker:true,loginErr:''}); }
+  closeMs(){ this.setState({msPicker:false}); }
+  msLogin(email){ const db=this.db(); const u=(db.users||[]).find(x=>(x.email||'').toLowerCase()===(''+email).toLowerCase()); if(!u){ this.setState({msPicker:false,loginErr:'هذا الحساب غير مُصرّح له بالدخول'}); return; } const sess={id:u.id,username:u.username,name:u.name,role:u.role,roleKey:u.roleKey,init:u.init,instId:u.instId}; window.ECEStore.setSession(sess); this.setState({session:sess,msPicker:false,loginErr:'',loginPass:'',screen:u.roleKey==='establishment'?'myinst':'dashboard'}); }
+  logout(){ window.ECEStore.clearSession(); this.setState({session:null,screen:'dashboard',sel:null,modal:null}); }
+
+  go(s){ this.setState({screen:s,navOpen:false,sel:null,modal:null}); }
+  toggleTheme(){ this.setState(s=>({theme:s.theme==='dark'?'light':'dark'})); }
+  toggleNav(){ this.setState(s=>({navOpen:!s.navOpen})); }
+
+  openInst(id){ this.setState({sel:id,instTab:'data',files:[],filesLoading:true}); this.loadFiles(id); }
+  closeInst(){ this.setState({sel:null}); }
+  setTab(t){ this.setState({instTab:t}); if(t==='attach') this.loadFiles(this.state.sel); }
+  loadFiles(id){ if(!window.ECEStore){return;} this.setState({filesLoading:true}); window.ECEStore.listFiles(id).then(files=>this.setState({files,filesLoading:false})).catch(()=>this.setState({filesLoading:false})); }
+
+  uploadTrigger(){
+    if(this.state.instTab!=='attach') this.setState({instTab:'attach'});
+    const inp=document.createElement('input'); inp.type='file'; inp.multiple=true;
+    inp.onchange=(e)=>{ const id=this.state.sel; const list=Array.from(e.target.files||[]);
+      Promise.all(list.map(file=>{ const ext=(file.name.split('.').pop()||'').toLowerCase(); const tag=/pdf/.test(ext)?'PDF':/png|jpe?g|gif|webp/.test(ext)?'صورة':/docx?/.test(ext)?'مستند':/xlsx?/.test(ext)?'جدول':'مرفق';
+        const meta={id:'f_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),instId:id,name:file.name,type:file.type,size:file.size,tag,at:Date.now()};
+        return window.ECEStore.addFile(meta,file); }))
+      .then(()=>{ this.loadFiles(id); this.toast('تم رفع المستند إلى التخزين السحابي','green'); });
+    };
+    inp.click();
+  }
+  downloadFile(id){ window.ECEStore.getFile(id).then(rec=>{ if(!rec)return; const url=URL.createObjectURL(rec.blob); const a=document.createElement('a'); a.href=url; a.download=rec.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); }); }
+  delFile(id){ window.ECEStore.delFile(id).then(()=>{ this.loadFiles(this.state.sel); this.toast('تم حذف المستند','amber'); }); }
+
+  /* ---------- modals & forms ---------- */
+  openModal(type,form){ this.setState({modal:type,form:form||{},formError:''}); }
+  closeModal(){ this.setState({modal:null,formError:'',insp:null}); }
+  setForm(k,v){ this.setState(s=>({form:Object.assign({},s.form,{[k]:v})})); }
+
+  addInst(){ this.openModal('inst',{type:'حضانة',gov:'العاصمة',status:'مرخّصة',days:365,_new:true}); }
+  editInst(){ const x=this.db().institutions.find(i=>i.id===this.state.sel); if(x) this.openModal('inst',Object.assign({},x,{_new:false})); }
+  addViolation(){ const i=this.db().institutions; const ax=(this.db().inspectionAxes||[])[0]; this.openModal('vio',{inst:i[0]?i[0].name:'',vioAxis:ax?ax.axis:'',vioItem:(ax&&ax.items[0])?ax.items[0].item:'',customType:'',sevLabel:'متوسطة',statusLabel:'مفتوحة',date:this.todayStr(),due:''}); }
+  addComplaint(){ const i=this.db().institutions; this.openModal('cmp',{inst:i[0]?i[0].name:'',cat:'النظافة',channel:'الموقع الإلكتروني',statusLabel:'جديدة',date:this.todayStr(),note:''}); }
+  deleteViolation(id){ this.openModal('confirmVio',{id}); }
+  deleteComplaint(ref){ this.openModal('confirmCmp',{ref}); }
+  toggleCmpSel(ref){ this.setState(s=>{ const sel=s.cmpSel.slice(); const i=sel.indexOf(ref); if(i>=0) sel.splice(i,1); else sel.push(ref); return {cmpSel:sel}; }); }
+  toggleCmpAll(refs){ this.setState(s=>{ const all=refs.every(r=>s.cmpSel.indexOf(r)>=0); return {cmpSel: all?[]:refs.slice()}; }); }
+  bulkDeleteCmp(){ if(!this.state.cmpSel.length) return; this.openModal('confirmBulkCmp',{}); }
+  toggleVioSel(id){ this.setState(s=>{ const sel=s.vioSel.slice(); const i=sel.indexOf(id); if(i>=0) sel.splice(i,1); else sel.push(id); return {vioSel:sel}; }); }
+  toggleVioAll(ids){ this.setState(s=>{ const all=ids.length>0&&ids.every(r=>s.vioSel.indexOf(r)>=0); return {vioSel: all?[]:ids.slice()}; }); }
+  bulkDeleteVio(){ if(!this.state.vioSel.length) return; this.openModal('confirmBulkVio',{}); }
+  deleteInspection(id){ this.openModal('confirmInsp',{id}); }
+
+  /* ---------- ECE Agent (AI assistant over system data) ---------- */
+  agentSuggestions(isInspector,isEstablishment){
+    if(isInspector) return ['ما المؤسسات المُسندة إليّ وما نسبة التزام كل منها؟','أي مؤسساتي لديها مخالفات مفتوحة؟','لخّص آخر زياراتي التفتيشية'];
+    if(isEstablishment) return ['ما حالة ترخيص منشأتي ومتى ينتهي؟','هل عليّ مخالفات قائمة؟','ما نسبة التزام منشأتي؟'];
+    return ['كم عدد المؤسسات المرخّصة وكم منها تنتهي تراخيصها خلال 30 يوماً؟','اعرض أعلى 5 مؤسسات التزاماً وأدناها','لخّص المخالفات المفتوحة حسب الخطورة','ما توزيع المؤسسات حسب المحافظة؟'];
+  }
+  onAgentKey(e){ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); this.askAgent(); } }
+  renderAgentText(text,role){
+    const R=React.createElement;
+    if(role==='user') return text;
+    const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const inline=s=>esc(s).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code style="font-family:monospace;font-size:.92em;background:rgba(127,127,127,.18);padding:1px 5px;border-radius:5px;">$1</code>');
+    const lines=(text||'').split('\n'); const blocks=[]; let list=null;
+    const flush=()=>{ if(list){ blocks.push('<ul style="margin:6px 0;padding-inline-start:20px;display:flex;flex-direction:column;gap:4px;">'+list.join('')+'</ul>'); list=null; } };
+    lines.forEach(ln=>{
+      const t=ln.trim();
+      if(!t){ flush(); return; }
+      let m;
+      if(/^#{1,6}\s+/.test(t)){ flush(); const lvl=t.match(/^#+/)[0].length; const sz=lvl<=1?16:lvl===2?14.5:13.5; blocks.push('<div style="font-weight:800;font-size:'+sz+'px;margin:8px 0 2px;">'+inline(t.replace(/^#+\s+/,''))+'</div>'); }
+      else if(/^([-*•]|\d+[.)])\s+/.test(t)){ list=list||[]; list.push('<li style="line-height:1.6;">'+inline(t.replace(/^([-*•]|\d+[.)])\s+/,''))+'</li>'); }
+      else if(/^[-—_]{3,}$/.test(t)){ flush(); blocks.push('<div style="height:1px;background:var(--line);margin:9px 0;"></div>'); }
+      else { flush(); blocks.push('<div style="line-height:1.7;margin:2px 0;">'+inline(t)+'</div>'); }
+    });
+    flush();
+    return R('div',{dangerouslySetInnerHTML:{__html:blocks.join('')}});
+  }
+  buildAgentContext(){
+    const db=this.db(); const sess=this.state.session||{}; const role=sess.roleKey;
+    let insts=db.institutions||[], insps=db.inspections||[], vios=db.violations||[], cmps=db.complaints||[];
+    if(role==='inspector'){ const u=(db.users||[]).find(x=>x.id===sess.id); const a=(u&&u.assigned)||[];
+      insts=insts.filter(i=>a.indexOf(i.id)>=0); const ids=insts.map(i=>i.id);
+      insps=insps.filter(v=>ids.indexOf(v.instId)>=0); vios=vios.filter(v=>{const m=insts.find(i=>i.name===v.inst);return !!m;}); cmps=cmps.filter(c=>ids.indexOf(c.instId)>=0);
+    } else if(role==='establishment'){ const id=sess.instId; insts=insts.filter(i=>i.id===id); const nm=insts[0]&&insts[0].name;
+      insps=insps.filter(v=>v.instId===id); vios=vios.filter(v=>v.inst===nm); cmps=cmps.filter(c=>c.instId===id);
+    }
+    const slimInst=insts.map(i=>({id:i.id,name:i.name,type:i.type,gov:i.gov,area:i.area,status:i.status,compliance:i.compliance,capacity:i.capacity,license:i.license,expiry:i.expiry,daysToExpiry:i.days,manager:i.manager,phone:i.phone}));
+    const slimInsp=insps.map(v=>({id:v.id,inst:v.inst,date:v.date,type:v.type,inspector:v.inspector,score:v.score}));
+    const slimVio=vios.map(v=>({id:v.id,inst:v.inst,cat:v.cat,severity:v.sevLabel,date:v.date,due:v.due,status:v.statusLabel}));
+    const slimCmp=cmps.map(c=>({ref:c.ref,inst:c.inst,cat:c.cat,channel:c.channel,date:c.date,status:c.statusLabel}));
+    return {today:'14 يونيو 2026',role:sess.role,counts:{institutions:slimInst.length,inspections:slimInsp.length,violations:slimVio.length,complaints:slimCmp.length},institutions:slimInst,inspections:slimInsp,violations:slimVio,complaints:slimCmp};
+  }
+  async askAgent(preset){
+    if(this.state.agentBusy) return;
+    const q=(preset!=null?preset:this.state.agentInput).trim();
+    if(!q) return;
+    const msgs=(this.state.agentMsgs||[]).concat([{role:'user',text:q}]);
+    this.setState({agentMsgs:msgs,agentInput:'',agentBusy:true});
+    try{
+      const ctx=this.buildAgentContext();
+      const history=msgs.slice(-6).map(m=>(m.role==='user'?'المستخدم: ':'المساعد: ')+m.text).join('\n');
+      const prompt='أنت "ECE Agent"، مساعد ذكي داخل نظام تراخيص التعليم المبكر في مملكة البحرين. تجيب فقط اعتماداً على بيانات النظام المرفقة بصيغة JSON أدناه — لا تخترع أرقاماً أو مؤسسات غير موجودة. أجب بالعربية بإيجاز ووضوح، واستخدم القوائم والنقاط والأرقام عند الحاجة. إذا سُئلت عن بيانات خارج النطاق المتاح لك فاعتذر بوضوح. عند طلب "تقرير" أو "جميع البيانات" لخّص الأهم في جدول نصي أو نقاط.\n\nبيانات النظام المتاحة لك (محصورة حسب صلاحية المستخدم):\n'+JSON.stringify(ctx)+'\n\nسجل المحادثة:\n'+history+'\n\nأجب الآن على آخر سؤال للمستخدم.';
+      let answer;
+      if(window.claude && window.claude.complete){ answer=await window.claude.complete(prompt); }
+      else { answer='تعذّر الوصول إلى خدمة الذكاء الاصطناعي في هذه المعاينة.'; }
+      this.setState(s=>({agentMsgs:(s.agentMsgs||[]).concat([{role:'assistant',text:(answer||'').trim()||'لم أتمكن من توليد إجابة.'}]),agentBusy:false}));
+    }catch(err){
+      this.setState(s=>({agentMsgs:(s.agentMsgs||[]).concat([{role:'assistant',text:'حدث خطأ أثناء معالجة طلبك. حاول مرة أخرى.'}]),agentBusy:false}));
+    }
+  }
+
+  confirmDeleteInst(){ this.openModal('confirm',{id:this.state.sel}); }
+
+  startInspection(){ const db=this.db(); const sess=this.state.session; let list=db.institutions||[]; if(sess&&sess.roleKey==='inspector'){ const u=(db.users||[]).find(x=>x.id===sess.id); const asg=(u&&u.assigned)||[]; list=list.filter(i=>asg.indexOf(i.id)>=0); } const inspector=(sess&&sess.name)||'—'; this.setState({insp:{instId:list[0]?list[0].id:null,type:'دورية',inspector:inspector,answers:this.defaultAnswers()},modal:'inspect',formError:''}); }
+  startInspectionFor(instId){ const sess=this.state.session; const inspector=(sess&&sess.name)||'—'; this.setState({insp:{instId:instId,type:'دورية',inspector:inspector,answers:this.defaultAnswers()},modal:'inspect',formError:''}); }
+  setInsp(k,v){ this.setState(s=>({insp:Object.assign({},s.insp,{[k]:v})})); }
+  ratings(){ return [
+    {label:'متوفر',factor:1,color:'var(--green)',tone:'green'},
+    {label:'جزئي',factor:0.5,color:'var(--amber)',tone:'amber'},
+    {label:'غير متوفر',factor:0,color:'var(--red)',tone:'red'},
+    {label:'لا ينطبق',factor:null,color:'var(--faint)',tone:'faint'}
+  ]; }
+  rateFactor(v){ const r=this.ratings().find(x=>x.label===v); return r?r.factor:1; }
+  verdict(score){ return score>=85?{label:'ممتاز',tone:'green'}: score>=70?{label:'جيد',tone:'accent'}: score>=55?{label:'مرضٍ',tone:'amber'}:{label:'غير ملائم',tone:'red'}; }
+  defaultAnswers(){ const db=this.db(); const a={}; (db.inspectionAxes||[]).forEach(ax=>ax.items.forEach(it=>{ a[it.id]='متوفر'; })); return a; }
+  setRating(itemId,val){ this.setState(s=>{ const a=Object.assign({},s.insp.answers); a[itemId]=val; return {insp:Object.assign({},s.insp,{answers:a})}; }); }
+
+  todayStr(){ return '14 يونيو 2026'; }
+  addDays(d){ const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']; const base=new Date('2026-06-14'); const t=new Date(base.getTime()+d*86400000); return t.getUTCDate()+' '+months[t.getUTCMonth()]+' '+t.getUTCFullYear(); }
+  deriveStatus(d,c){ if(d<0)return 'منتهية'; if(c<62)return 'معلّقة'; if(c<74)return 'تحت الإجراء'; return 'مرخّصة'; }
+
+  submitModal(){
+    const t=this.state.modal, f=this.state.form, db=this.db();
+    if(t==='inst'){
+      if(!f.name||!(''+f.name).trim()){ this.setState({formError:'اسم المؤسسة مطلوب'}); return; }
+      const d=parseInt(f.days,10); const days=isNaN(d)?365:d;
+      const existingInst=!f._new?db.institutions.find(i=>i.id===f.id):null;
+      const comp=existingInst?existingInst.compliance:0;
+      const cap=parseInt((''+f.capacity).replace(/[^0-9]/g,''),10)||0;
+      const rec={ id:f._new?(db.counters.inst++):f.id, name:(''+f.name).trim(), en:f.en||'', type:f.type||'حضانة',
+        gov:f.gov||'العاصمة', area:f.area||'—', addr:(f.area?f.area+' – ':'')+'مملكة البحرين',
+        phone:f.phone||'—', email:f.email||'—', owner:f.owner||'—', manager:f.manager||'—',
+        capacity:cap, rooms:f.rooms||'—', license:f.license||('BH-NU-2026-0'+(db.counters.inst)), year:f.year||'2026',
+        days:days, expiry:this.addDays(days), compliance:comp, status:f.status||this.deriveStatus(days,comp), identity:f.identity||'وطنية' };
+      if(f._new){ db.institutions.unshift(rec); this.toast('تم تسجيل المؤسسة الجديدة','green'); }
+      else { const idx=db.institutions.findIndex(i=>i.id===f.id); if(idx>=0) db.institutions[idx]=rec; this.toast('تم حفظ التعديلات','green'); }
+      this.persist(db); this.closeModal(); return;
+    }
+    if(t==='vio'){
+      const isOther=f.vioAxis==='أخرى';
+      if(isOther && !(f.customType&&(''+f.customType).trim())){ this.setState({formError:'اكتب نوع المخالفة'}); return; }
+      const cat=isOther?(''+f.customType).trim():(f.vioItem||f.vioAxis||'مخالفة');
+      const axisLabel=isOther?'مخالفات أخرى':(f.vioAxis||'');
+      const rec={ id:'VIO-2026-'+String(db.counters.vio++).padStart(3,'0'), instId:(db.institutions.find(i=>i.name===f.inst)||{}).id, inst:f.inst, cat:cat, axis:axisLabel,
+        sevLabel:f.sevLabel, sevTone:f.sevLabel==='عالية'?'red':f.sevLabel==='متوسطة'?'amber':'green',
+        date:f.date||this.todayStr(), due:f.due||'—', statusLabel:f.statusLabel, statusTone:f.statusLabel==='مُعالَجة'?'green':f.statusLabel==='قيد المعالجة'?'amber':'red' };
+      db.violations.unshift(rec); this.persist(db); this.toast('تم تسجيل المخالفة','green'); this.closeModal(); return;
+    }
+    if(t==='cmp'){
+      const stMap={'جديدة':'accent','قيد التحقيق':'amber','محوّلة للتفتيش':'accent','مغلقة':'green'};
+      const rec={ ref:'CMP-2026-'+String(db.counters.cmp++).padStart(4,'0'), instId:(db.institutions.find(i=>i.name===f.inst)||{}).id, inst:f.inst, cat:f.cat, channel:f.channel,
+        statusLabel:f.statusLabel, statusTone:stMap[f.statusLabel]||'accent', date:f.date||this.todayStr(), note:f.note||'' };
+      db.complaints.unshift(rec); this.persist(db); this.toast('تم تسجيل الشكوى','green'); this.closeModal(); return;
+    }
+    if(t==='confirm'){
+      db.institutions=db.institutions.filter(i=>i.id!==f.id);
+      this.persist(db); this.setState({sel:null}); this.toast('تم حذف المؤسسة','amber'); this.closeModal(); return;
+    }
+    if(t==='inspect'){
+      const insp=this.state.insp; const inst=db.institutions.find(i=>i.id==insp.instId);
+      if(!inst){ this.setState({formError:'اختر المؤسسة'}); return; }
+      let tot=0,met=0; const axisScores=[];
+      (db.inspectionAxes||[]).forEach(ax=>{ let asum=0,awt=0; ax.items.forEach(it=>{ const w=it.weight||1; const r=insp.answers[it.id]||'متوفر'; const f2=this.rateFactor(r); if(f2===null) return; tot+=w; met+=w*f2; asum+=w*f2; awt+=w; }); axisScores.push({axis:ax.axis, pct:awt?Math.round(asum/awt*100):0}); });
+      const score=tot?Math.round(met/tot*100):0;
+      const v=this.verdict(score);
+      const rec={ id:'INS-2026-'+String(db.counters.insp++).padStart(3,'0'), instId:inst.id, inst:inst.name, gov:inst.gov, type:insp.type, date:this.todayStr().replace(' 2026',''), inspector:insp.inspector, score, resLabel:v.label, resTone:v.tone, answers:Object.assign({},insp.answers), axisScores };
+      db.inspections.unshift(rec);
+      inst.compliance=score; inst.status=this.deriveStatus(inst.days,score);
+      const sess=this.state.session;
+      if(sess&&sess.roleKey==='inspector'){ (db.users||[]).filter(x=>x.roleKey==='supervisor'||x.roleKey==='admin').forEach(sup=>{ this.pushNotif(db,sup.id,'أنهى المفتش '+sess.name+' إدخال بنود زيارة مؤسسة «'+inst.name+'» — النتيجة '+v.label+' ('+score+'%)','إتمام زيارة'); }); }
+      this.persist(db); this.toast('تم حفظ الزيارة التفتيشية — '+v.label+' ('+score+'%)','green'); this.closeModal(); return;
+    }
+    if(t==='user'){
+      if(!f.name||!(''+f.name).trim()){ this.setState({formError:'اسم المستخدم مطلوب'}); return; }
+      if(!f.username||!(''+f.username).trim()){ this.setState({formError:'اسم الدخول مطلوب'}); return; }
+      const uname=(''+f.username).trim();
+      const clash=(db.users||[]).find(u=>u.username===uname && u.id!==f.id);
+      if(clash){ this.setState({formError:'اسم الدخول مستخدم بالفعل'}); return; }
+      if(f._new && !(f.password&&(''+f.password).length>=3)){ this.setState({formError:'كلمة المرور 3 أحرف على الأقل'}); return; }
+      const roleNames={admin:'مدير النظام',supervisor:'مشرف',inspector:'مفتش',viewer:'مطّلع — اطلاع فقط',establishment:'ممثل منشأة'};
+      const rk=f.roleKey||'inspector';
+      if(f._new){
+        const id='u_'+Date.now().toString(36);
+        const rec={ id, username:uname, password:f.password||'1234', name:(''+f.name).trim(), role:f.role&&(''+f.role).trim()?f.role:roleNames[rk], roleKey:rk, init:(''+f.name).trim().replace(/^(أ\.|د\.|م\.)\s*/,'').charAt(0)||'؟', assigned:[], instId:rk==='establishment'?(f.instId||null):null, active:f.active!==false, tasks:rk==='inspector'?0:null, tasksDone:rk==='inspector'?0:null, rate:rk==='inspector'?0:0 };
+        db.users.push(rec); this.toast('تمت إضافة المستخدم وتحديد صلاحيته','green');
+      } else {
+        const u=db.users.find(x=>x.id===f.id);
+        if(u){ u.name=(''+f.name).trim(); u.username=uname; if(f.password) u.password=f.password; u.roleKey=rk; u.role=f.role&&(''+f.role).trim()?f.role:roleNames[rk]; u.active=f.active!==false; u.init=u.name.replace(/^(أ\.|د\.|م\.)\s*/,'').charAt(0)||u.init; }
+        this.toast('تم حفظ بيانات المستخدم','green');
+      }
+      this.persist(db); this.closeModal(); return;
+    }
+    if(t==='confirmUser'){
+      db.users=db.users.filter(u=>u.id!==f.id); this.persist(db); this.toast('تم حذف المستخدم','amber'); this.closeModal(); return;
+    }
+    if(t==='confirmVio'){
+      db.violations=(db.violations||[]).filter(v=>v.id!==f.id); this.persist(db); this.toast('تم حذف المخالفة','amber'); this.closeModal(); return;
+    }
+    if(t==='confirmCmp'){
+      db.complaints=(db.complaints||[]).filter(c=>c.ref!==f.ref); this.persist(db); this.toast('تم حذف الشكوى','amber'); this.closeModal(); return;
+    }
+    if(t==='confirmBulkCmp'){
+      const sel=this.state.cmpSel||[]; const n=sel.length; db.complaints=(db.complaints||[]).filter(c=>sel.indexOf(c.ref)<0); this.persist(db); this.setState({cmpSel:[]}); this.toast('تم حذف '+n+' شكوى','amber'); this.closeModal(); return;
+    }
+    if(t==='confirmBulkVio'){
+      const sel=this.state.vioSel||[]; const n=sel.length; db.violations=(db.violations||[]).filter(v=>sel.indexOf(v.id)<0); this.persist(db); this.setState({vioSel:[]}); this.toast('تم حذف '+n+' مخالفة','amber'); this.closeModal(); return;
+    }
+    if(t==='confirmInsp'){
+      const rec=(db.inspections||[]).find(v=>v.id===f.id);
+      db.inspections=(db.inspections||[]).filter(v=>v.id!==f.id);
+      if(rec){ const inst=db.institutions.find(i=>i.id===rec.instId); if(inst){ const remaining=(db.inspections||[]).filter(v=>v.instId===inst.id); inst.compliance=remaining.length?remaining[0].score:0; inst.status=this.deriveStatus(inst.days,inst.compliance); } }
+      this.persist(db); this.toast('تم حذف الزيارة التفتيشية','amber'); this.closeModal(); return;
+    }
+    if(t==='assign'){
+      const u=db.users.find(x=>x.id===f.userId); if(!u){ this.closeModal(); return; }
+      if(f.roleKey==='establishment'){ u.instId=f.instId||null; this.toast('تم ربط المنشأة بالمستخدم','green'); }
+      else {
+        const prev=(u.assigned||[]).slice();
+        u.assigned=(f.sel||[]).slice();
+        const meta={}; const dates=f.dates||{}; u.assigned.forEach(id=>{ meta[id]={date:dates[id]||'', by:(this.state.session&&this.state.session.name)||''}; }); u.assignMeta=meta;
+        const added=u.assigned.filter(id=>prev.indexOf(id)<0);
+        if(f.notify){
+          added.forEach(id=>{ const inst=db.institutions.find(i=>i.id===id); const dt=this.fmtIso(dates[id]); this.pushNotif(db,u.id,'أُسندت إليك زيارة مؤسسة «'+(inst?inst.name:'')+'» بتاريخ '+dt,'إسناد زيارة'); });
+          this.toast('تم إسناد '+u.assigned.length+' مؤسسة وإرسال إشعار بالبريد إلى '+(u.email||u.name),'green');
+        } else { this.toast('تم إسناد '+u.assigned.length+' مؤسسة للمفتش','green'); }
+      }
+      this.persist(db); this.closeModal(); return;
+    }
+    if(t==='respond'){
+      const stMap={'تمت المعالجة':'green','قيد المعالجة':'amber','تعذّر التنفيذ':'red'};
+      db.responses=db.responses||[];
+      const existing=f.respId?db.responses.find(r=>r.id===f.respId):null;
+      if(existing){ existing.statusLabel=f.statusLabel; existing.statusTone=stMap[f.statusLabel]||'amber'; existing.note=f.note||''; existing.date=this.todayStr(); }
+      else { db.responses.push({ id:'R'+(db.counters.resp++), instId:f.instId, itemId:f.itemId, axis:f.axis, item:f.item, statusLabel:f.statusLabel, statusTone:stMap[f.statusLabel]||'amber', note:f.note||'', date:this.todayStr(), by:this.state.session?this.state.session.name:'' }); }
+      this.persist(db); this.toast('تم تسليم ردّك بنجاح','green'); this.closeModal(); return;
+    }
+  }
+
+  renewLicense(id){ const db=this.db(); const x=db.institutions.find(i=>i.id===id); if(!x)return; x.days=730; x.expiry=this.addDays(730); if(x.status==='منتهية') x.status=this.deriveStatus(730,x.compliance); this.persist(db); this.toast('تم تجديد الترخيص لمدة سنتين','green'); }
+  exportCSV(kind){
+    const db=this.db(); let rows=[],head=[],name='report';
+    if(kind==='institutions'){ head=['المؤسسة','النوع','المحافظة','رقم الترخيص','السعة','الالتزام%','الحالة','الانتهاء']; rows=db.institutions.map(x=>[x.name,x.type,x.gov,x.license,x.capacity,x.compliance,x.status,x.expiry]); name='institutions'; }
+    else if(kind==='licenses'){ head=['المؤسسة','رقم الترخيص','سنة الإصدار','الانتهاء','أيام متبقية','الحالة']; rows=db.institutions.map(x=>[x.name,x.license,x.year,x.expiry,x.days,x.status]); name='licenses'; }
+    else if(kind==='inspections'){ head=['الرقم','المؤسسة','النوع','التاريخ','المفتش','الدرجة','النتيجة']; rows=db.inspections.map(x=>[x.id,x.inst,x.type,x.date,x.inspector,x.score,x.resLabel]); name='inspections'; }
+    else if(kind==='violations'){ head=['الرقم','المؤسسة','التصنيف','الخطورة','التاريخ','الاستحقاق','الحالة']; rows=db.violations.map(x=>[x.id,x.inst,x.cat,x.sevLabel,x.date,x.due,x.statusLabel]); name='violations'; }
+    else if(kind==='complaints'){ head=['المرجع','المؤسسة','التصنيف','القناة','التاريخ','الحالة']; rows=db.complaints.map(x=>[x.ref,x.inst,x.cat,x.channel,x.date,x.statusLabel]); name='complaints'; }
+    else if(kind==='team'){ head=['العضو','الصلاحية','المهام','المنجزة','التقييم']; rows=db.team.map(x=>[x.name,x.role,x.assigned,x.done,x.rate]); name='team'; }
+    const esc=v=>{ v=(''+v).replace(/"/g,'""'); return /[",\n]/.test(v)?'"'+v+'"':v; };
+    const csv='\ufeff'+[head].concat(rows).map(r=>r.map(esc).join(',')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=name+'-2026.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+    this.toast('تم تصدير الملف بنجاح','green');
+  }
+  resetDemo(){ if(window.ECEStore){ window.ECEStore.reset().then(()=>{ window.ECEStore.init(window.ECE_SEED); this.setState({sel:null,modal:null,toast:null}); this.toast('تمت إعادة ضبط البيانات','amber'); }); } }
+
+  /* ---------- printing (preview before print) ---------- */
+  printHTML(title, bodyHTML){
+    const doc='<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+title+'</title>'+
+      '<style>*{box-sizing:border-box;}body{font-family:"Tajawal",system-ui,Arial,sans-serif;direction:rtl;color:#14233c;margin:0;padding:34px 40px;}'+
+      'h1{font-size:20px;margin:0 0 4px;}.sub{color:#6b7a92;font-size:13px;margin-bottom:18px;}'+
+      '.brand{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0e4d7b;padding-bottom:14px;margin-bottom:20px;}'+
+      '.brand .org{font-size:12px;color:#6b7a92;text-align:left;}table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px;}'+
+      'th,td{border:1px solid #d8dfea;padding:8px 10px;text-align:right;}th{background:#eef3f9;font-weight:700;}'+
+      '.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;font-size:13px;margin-bottom:18px;}'+
+      '.grid .k{color:#6b7a92;font-size:11.5px;}.grid .v{font-weight:700;}.sec{font-size:14px;font-weight:800;margin:18px 0 8px;border-right:3px solid #0e4d7b;padding-right:8px;}'+
+      '.foot{margin-top:30px;border-top:1px solid #d8dfea;padding-top:12px;color:#93a1b6;font-size:11px;text-align:center;}'+
+      '@media print{body{padding:0;}}</style></head><body>'+
+      '<div class="brand"><div><h1>'+title+'</h1><div class="sub">نظام إدارة تراخيص ومتابعة التعليم المبكر</div></div>'+
+      '<div class="org">وزارة التربية والتعليم<br>مملكة البحرين</div></div>'+bodyHTML+
+      '<div class="foot">تم إنشاء هذا المستند آلياً بتاريخ 14 يونيو 2026 — نظام داخلي</div></body></html>';
+    const ifr=document.createElement('iframe');
+    ifr.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+    document.body.appendChild(ifr);
+    const w=ifr.contentWindow; w.document.open(); w.document.write(doc); w.document.close();
+    setTimeout(()=>{ try{ w.focus(); w.print(); }catch(e){} setTimeout(()=>ifr.remove(),1000); }, 350);
+    this.toast('تم تجهيز السجل للطباعة','green');
+  }
+  esc(s){ return (''+(s==null?'':s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  printInst(id){
+    const x=this.db().institutions.find(i=>i.id===(id!=null?id:this.state.sel)); if(!x)return;
+    const f=(k,v)=>'<div><div class="k">'+k+'</div><div class="v">'+this.esc(v)+'</div></div>';
+    const visits=(this.db().inspections||[]).filter(v=>v.instId===x.id);
+    let vrows=visits.map(v=>'<tr><td>'+v.id+'</td><td>'+v.type+'</td><td>'+v.date+'</td><td>'+v.inspector+'</td><td>'+v.score+'%</td><td>'+v.resLabel+'</td></tr>').join('');
+    if(!vrows) vrows='<tr><td colspan="6" style="text-align:center;color:#93a1b6;">لا توجد زيارات</td></tr>';
+    const body='<div class="grid">'+f('اسم المؤسسة',x.name)+f('رقم الترخيص',x.license)+f('النوع',x.type)+f('المحافظة',x.gov)+
+      f('المنطقة',x.area)+f('الطاقة الاستيعابية',x.capacity+' طفل')+f('المالك',x.owner)+f('المدير المسؤول',x.manager)+
+      f('الهاتف',x.phone)+f('البريد الإلكتروني',x.email)+f('الحالة',x.status)+f('نسبة الالتزام',x.compliance+'%')+
+      f('سنة الترخيص',x.year)+f('تاريخ الانتهاء',x.expiry)+'</div>'+
+      '<div class="sec">سجل الزيارات التفتيشية</div><table><thead><tr><th>الرقم</th><th>النوع</th><th>التاريخ</th><th>المفتش</th><th>التقييم</th><th>النتيجة</th></tr></thead><tbody>'+vrows+'</tbody></table>';
+    this.printHTML('سجل المؤسسة — '+x.name, body);
+  }
+  printReportDoc(rec){
+    const f=(k,v)=>'<div><div class="k">'+k+'</div><div class="v">'+this.esc(v)+'</div></div>';
+    const body='<div class="grid">'+f('المؤسسة',rec.inst)+f('رقم الزيارة',rec.id)+f('المفتش',rec.inspector)+f('التاريخ',rec.date)+
+      f('نوع الزيارة',rec.type)+f('النتيجة',rec.resLabel+' ('+rec.score+'%)')+'</div>'+
+      '<div class="sec">ملاحظات المفتش وتوصياته</div><div style="border:1px solid #d8dfea;border-radius:8px;padding:14px;min-height:90px;font-size:13px;line-height:1.7;white-space:pre-wrap;">'+
+      this.esc(rec.notes||'لا توجد ملاحظات مسجّلة.')+'</div>';
+    this.printHTML('تقرير زيارة تفتيشية — '+rec.id, body);
+  }
+  printList(kind){
+    const db=this.db();
+    const T=this.reportTable(kind);
+    const th=T.head.map(h=>'<th>'+h+'</th>').join('');
+    const tr=T.rows.map(r=>'<tr>'+r.map(c=>'<td>'+this.esc(c)+'</td>').join('')+'</tr>').join('');
+    this.printHTML(T.title, '<div class="sub" style="margin-bottom:14px;">عدد السجلات: '+T.rows.length+'</div><table><thead><tr>'+th+'</tr></thead><tbody>'+tr+'</tbody></table>');
+  }
+  reportTable(kind){
+    const db=this.db(); let head=[],rows=[],title='تقرير';
+    if(kind==='institutions'){ title='تقرير المؤسسات'; head=['المؤسسة','النوع','المحافظة','رقم الترخيص','السعة','الالتزام','الحالة']; rows=db.institutions.map(x=>[x.name,x.type,x.gov,x.license,x.capacity,x.compliance+'%',x.status]); }
+    else if(kind==='licenses'){ title='تقرير التراخيص'; head=['المؤسسة','رقم الترخيص','الإصدار','الانتهاء','الحالة']; rows=db.institutions.map(x=>[x.name,x.license,x.year,x.expiry,x.status]); }
+    else if(kind==='inspections'){ title='تقرير التفتيش'; head=['الرقم','المؤسسة','النوع','التاريخ','المفتش','التقييم','النتيجة']; rows=(db.inspections||[]).map(x=>[x.id,x.inst,x.type,x.date,x.inspector,x.score+'%',x.resLabel]); }
+    else if(kind==='violations'){ title='تقرير المخالفات'; head=['الرقم','المؤسسة','التصنيف','الخطورة','التاريخ','الحالة']; rows=(db.violations||[]).map(x=>[x.id,x.inst,x.cat,x.sevLabel,x.date,x.statusLabel]); }
+    else if(kind==='complaints'){ title='تقرير الشكاوى'; head=['المرجع','المؤسسة','التصنيف','القناة','التاريخ','الحالة']; rows=(db.complaints||[]).map(x=>[x.ref,x.inst,x.cat,x.channel,x.date,x.statusLabel]); }
+    else if(kind==='team'){ title='تقرير المستخدمين'; head=['المستخدم','اسم الدخول','الصلاحية','الحالة']; rows=(db.users||[]).map(x=>[x.name,x.username,x.role,x.active===false?'موقوف':'نشط']); }
+    return {title,head,rows};
+  }
+  viewRecords(kind){ this.setState({recView:kind, recQ:''}); }
+  closeRecView(){ this.setState({recView:null, recQ:''}); }
+
+  /* ---------- alerts / email notifications ---------- */
+  toggleEmailAlerts(){ const db=this.db(); db.settings=db.settings||{emailAlerts:true,adminEmail:'admin@moe.gov.bh'}; db.settings.emailAlerts=!db.settings.emailAlerts; this.persist(db); this.toast(db.settings.emailAlerts?'تم تفعيل إشعار مدير النظام بالبريد':'تم إيقاف الإشعار بالبريد', db.settings.emailAlerts?'green':'amber'); }
+  openAlert(a){ this.openModal('alert',{alert:a}); }
+  addEmailRecipient(){
+    const v=(this.state.emailInput||'').trim();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ this.setState({emailErr:'صيغة البريد غير صحيحة'}); return; }
+    const db=this.db(); db.settings=db.settings||{emailAlerts:true,adminEmail:'admin@moe.gov.bh'}; db.settings.extraEmails=db.settings.extraEmails||[];
+    if(db.settings.extraEmails.indexOf(v)>=0){ this.setState({emailErr:'هذا البريد مُضاف مسبقاً'}); return; }
+    db.settings.extraEmails.push(v); this.setState({emailInput:'',emailErr:''}); this.persist(db); this.toast('تمت إضافة المستلم: '+v,'green');
+  }
+  removeEmailRecipient(email){ const db=this.db(); if(db.settings&&db.settings.extraEmails){ db.settings.extraEmails=db.settings.extraEmails.filter(e=>e!==email); this.persist(db); this.toast('تم حذف المستلم','amber'); } }
+  onEmailKey(e){ if(e.key==='Enter'){ e.preventDefault(); this.addEmailRecipient(); } }
+  onAdminEmailInput(e){ this.setState({adminEmailDraft:e.target.value, emailErr:''}); }
+  onAdminEmailKey(e){ if(e.key==='Enter'){ e.preventDefault(); if(e.target&&e.target.blur) e.target.blur(); else this.saveAdminEmail(); } }
+  saveAdminEmail(){ const cur=(this.db().settings&&this.db().settings.adminEmail)||'admin@moe.gov.bh'; const v=(this.state.adminEmailDraft==null?cur:this.state.adminEmailDraft).trim(); if(v===cur){ this.setState({adminEmailDraft:null,emailErr:''}); return; } if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ this.setState({emailErr:'صيغة بريد مدير النظام غير صحيحة'}); return; } const db=this.db(); db.settings=db.settings||{emailAlerts:true}; db.settings.adminEmail=v; this.setState({adminEmailDraft:null,emailErr:''}); this.persist(db); this.toast('تم تحديث بريد مدير النظام','green'); }
+  emailLicenseReminder(id){ const x=this.db().institutions.find(i=>i.id===id); const db=this.db(); const on=db.settings&&db.settings.emailAlerts!==false; const extra=(db.settings&&db.settings.extraEmails||[]).length; const suffix=extra?(' و'+extra+' مستلم إضافي'):''; this.toast(on?('تم إرسال تنبيه بترخيص «'+(x?x.name:'')+'» إلى بريد مدير النظام'+suffix):'الإشعار بالبريد متوقّف — فعّله من شاشة التراخيص', on?'green':'amber'); }
+
+  /* ---------- inspections sort ---------- */
+  sortInsp(key){ this.setState(s=>{ const cur=s.inspSort||{key:'date',dir:'desc'}; const dir=(cur.key===key&&cur.dir==='desc')?'asc':'desc'; return {inspSort:{key,dir}}; }); }
+  /* ---------- generic table sort (institutions / violations / complaints) ---------- */
+  setSort(which,key){ this.setState(s=>{ const cur=s[which]||{key:'',dir:'asc'}; const dir=(cur.key===key&&cur.dir==='asc')?'desc':'asc'; return {[which]:{key,dir}}; }); }
+  sortList(arr,sortState,getters){ if(!sortState||!sortState.key) return arr; const g=getters[sortState.key]; if(!g) return arr; const dir=sortState.dir==='desc'?-1:1; return arr.slice().sort((a,b)=>{ const av=g(a),bv=g(b); if(typeof av==='number'&&typeof bv==='number') return (av-bv)*dir; return (''+av).localeCompare(''+bv,'ar')*dir; }); }
+
+  /* ---------- users (admin) ---------- */
+  addUser(){ const sess=this.state.session; const sup=sess&&sess.roleKey==='supervisor'; this.openModal('user',{roleKey:'inspector',active:true,_new:true,_supLock:sup}); }
+  editUser(id){ const u=this.db().users.find(x=>x.id===id); if(u) this.openModal('user',Object.assign({},u,{_new:false})); }
+  deleteUser(id){ this.openModal('confirmUser',{id}); }
+  isoPlus(days){ const d=new Date(2026,5,14); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+  fmtIso(iso){ if(!iso) return '—'; const months=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']; const p=(''+iso).split('-'); if(p.length!==3) return iso; return parseInt(p[2],10)+' '+months[parseInt(p[1],10)-1]+' '+p[0]; }
+  pushNotif(db,userId,text,kind){ db.notifs=db.notifs||[]; db.counters.notif=(db.counters.notif||0)+1; db.notifs.unshift({id:'N'+db.counters.notif,to:userId,text:text,kind:kind||'إسناد',date:this.todayStr(),read:false}); }
+  openAssign(id){ const u=this.db().users.find(x=>x.id===id); if(!u)return; this.setState({modal:'assign',form:{userId:id,roleKey:u.roleKey,sel:(u.assigned||[]).slice(),instId:u.instId,name:u.name,dates:Object.assign({},u.assignMeta||{}),notify:true},formError:'',assignQ:''}); }
+  toggleAssign(instId){ this.setState(s=>{ const f=Object.assign({},s.form); if(f.roleKey==='establishment'){ f.instId=(f.instId===instId?null:instId); } else { const arr=(f.sel||[]).slice(); const i=arr.indexOf(instId); const dates=Object.assign({},f.dates||{}); if(i>=0){arr.splice(i,1); delete dates[instId];} else {arr.push(instId); if(!dates[instId]) dates[instId]=this.isoPlus(7);} f.sel=arr; f.dates=dates; } return {form:f}; }); }
+  setAssignDate(instId,val){ this.setState(s=>{ const f=Object.assign({},s.form); const dates=Object.assign({},f.dates||{}); dates[instId]=val; f.dates=dates; return {form:f}; }); }
+  toggleAssignNotify(){ this.setState(s=>({form:Object.assign({},s.form,{notify:!s.form.notify})})); }
+
+  /* ---------- establishment responses ---------- */
+  openRespond(instId,itemId,axis,item){ const db=this.db(); const ex=(db.responses||[]).find(r=>r.instId===instId&&r.itemId===itemId); this.openModal('respond',{instId,itemId,axis,item,statusLabel:ex?ex.statusLabel:'قيد المعالجة',note:ex?ex.note:'',respId:ex?ex.id:null}); }
+
+  /* ---------- inspection report (inspector view/edit/print) ---------- */
+  openReport(id){ const rec=this.db().inspections.find(v=>v.id===id); if(rec) this.openModal('report',Object.assign({},rec)); }
+
+  renderVals(){
+    const R=React.createElement;
+    const p=d=>R('path',{key:d,d:d});
+    const mk=(ch,o)=>R('svg',Object.assign({width:18,height:18,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:1.7,strokeLinecap:'round',strokeLinejoin:'round'},o||{}),ch);
+    const I={
+      grid:mk([p('M3 3h7v7H3z'),p('M14 3h7v7h-7z'),p('M3 14h7v7H3z'),p('M14 14h7v7h-7z')]),
+      building:mk([p('M5 21V5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v16'),p('M14 9h4a1 1 0 0 1 1 1v11'),p('M8 8h2'),p('M8 12h2'),p('M8 16h2'),p('M3 21h18')]),
+      doc:mk([p('M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z'),p('M14 3v4h4'),p('M9 13h6'),p('M9 17h4')]),
+      inspect:mk([p('M9 4h6v2a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1z'),p('M7 5H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-1'),p('M9 14l2 2 4-4')]),
+      warn:mk([p('M12 3l9 16H3z'),p('M12 10v4'),p('M12 17h.01')]),
+      chat:mk([p('M4 5h16a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H10l-4 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z')]),
+      bars:mk([p('M6 20V11'),p('M12 20V4'),p('M18 20v-6')],{strokeWidth:2.3}),
+      users:mk([p('M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'),p('M3 20a6 6 0 0 1 12 0'),p('M16 5.5a3 3 0 0 1 0 5.5'),p('M17 14.5A6 6 0 0 1 21 20')]),
+      bell:mk([p('M6 9a6 6 0 1 1 12 0c0 4 1.4 5 2 6H4c.6-1 2-2 2-6z'),p('M10 20a2 2 0 0 0 4 0')]),
+      search:mk([p('M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14z'),p('M21 21l-4-4')]),
+      sun:mk([p('M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z'),p('M12 2v2'),p('M12 20v2'),p('M4 12H2'),p('M22 12h-2'),p('M5.6 5.6l1.4 1.4'),p('M17 17l1.4 1.4'),p('M18.4 5.6L17 7'),p('M7 17l-1.4 1.4')]),
+      moon:mk([p('M20 13A8 8 0 1 1 11 4a6 6 0 0 0 9 9z')]),
+      menu:mk([p('M4 7h16'),p('M4 12h16'),p('M4 17h16')]),
+      close:mk([p('M6 6l12 12'),p('M18 6L6 18')]),
+      plus:mk([p('M12 5v14'),p('M5 12h14')],{strokeWidth:2}),
+      filter:mk([p('M3 5h18'),p('M6 11h12'),p('M10 17h4')],{strokeWidth:2}),
+      down:mk([p('M12 4v11'),p('M8 11l4 4 4-4'),p('M5 20h14')]),
+      up:mk([p('M7 14l5-5 5 5')],{strokeWidth:2.2}),
+      dn:mk([p('M7 10l5 5 5-5')],{strokeWidth:2.2}),
+      arrow:mk([p('M14 6l-6 6 6 6')]),
+      phone:mk([p('M5 4h3l2 5-2 1a11 11 0 0 0 5 5l1-2 5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z')]),
+      mail:mk([p('M4 6h16v12H4z'),p('M4 7l8 6 8-6')]),
+      file:mk([p('M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z'),p('M14 3v4h4')]),
+      edit:mk([p('M4 20h4L18 10l-4-4L4 16z'),p('M13 7l4 4')]),
+      trash:mk([p('M5 7h14'),p('M10 7V5h4v2'),p('M6 7l1 13h10l1-13')]),
+      upload:mk([p('M12 16V5'),p('M8 9l4-4 4 4'),p('M5 20h14')]),
+      logout:mk([p('M14 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2'),p('M10 12h10'),p('M17 9l3 3-3 3')]),
+      lock:mk([p('M6 11h12v9H6z'),p('M9 11V8a3 3 0 0 1 6 0v3')]),
+      user:mk([p('M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'),p('M5 21a7 7 0 0 1 14 0')]),
+      shield:mk([p('M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z'),p('M9 12l2 2 4-4')]),
+      refresh:mk([p('M20 11a8 8 0 0 0-14-4l-2 2'),p('M4 6v4h4'),p('M4 13a8 8 0 0 0 14 4l2-2'),p('M20 18v-4h-4')],{strokeWidth:1.9}),
+      cloud:mk([p('M7 18a4 4 0 0 1 0-8 5 5 0 0 1 9.6-1.3A3.5 3.5 0 0 1 18 18z'),p('M9 14l2 2 4-4')]),
+      check:mk([p('M5 12l5 5L20 6')],{strokeWidth:2.3}),
+      cal:mk([p('M5 5h14v15H5z'),p('M5 9h14'),p('M9 3v4'),p('M15 3v4')]),
+      print:mk([p('M7 9V4h10v5'),p('M7 18H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2'),p('M7 14h10v6H7z')]),
+      sheet:mk([p('M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z'),p('M4 9h16'),p('M4 15h16'),p('M10 3v18'),p('M15 3v18')]),
+      spark:mk([p('M12 3l1.7 5L19 9.7l-5.3 1.7L12 17l-1.7-5.3L5 9.7l5.3-1.7z'),p('M18.5 14l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z')],{strokeWidth:1.4}),
+      eye:mk([p('M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z'),p('M12 9.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6z')]),
+      send:mk([p('M5 12h14'),p('M13 6l6 6-6 6')],{strokeWidth:2}),
+      none:R('span',{})
+    };
+
+    const tones={ green:'var(--green)', amber:'var(--amber)', red:'var(--red)', accent:'var(--accent2)', faint:'var(--faint)' };
+    const chip=t=>({ color:tones[t]||tones.faint, background:'color-mix(in oklab,'+(tones[t]||tones.faint)+' 16%,transparent)', border:'1px solid color-mix(in oklab,'+(tones[t]||tones.faint)+' 32%,transparent)', padding:'3px 11px', borderRadius:'999px', fontSize:'12px', fontWeight:700, whiteSpace:'nowrap', display:'inline-block', lineHeight:1.7 });
+    const statusTone=s=> s==='مرخّصة'?'green':s==='تحت الإجراء'?'amber':s==='معلّقة'?'red':'faint';
+    const compColor=v=> v>=85?'var(--green)': v>=70?'var(--accent2)': v>=55?'var(--amber)':'var(--red)';
+    const verdictOf=v=> v>=85?{label:'ممتاز',tone:'green'}: v>=70?{label:'جيد',tone:'accent'}: v>=55?{label:'مرضٍ',tone:'amber'}:{label:'غير ملائم',tone:'red'};
+    const css=o=>Object.keys(o).map(k=>k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())+':'+o[k]).join(';');
+    const chipCss=t=>css(chip(t));
+
+    const st=this.state;
+    const sess=st.session;
+    const role=sess?sess.roleKey:'viewer';
+    const canWrite=role==='admin'||role==='inspector';
+    const canManage=role==='admin';
+    const canDelete=role==='admin';
+    const canAddUser=role==='admin'||role==='supervisor';
+    const canAssign=role==='admin'||role==='supervisor';
+    const supervisorOnly=role==='supervisor';
+
+    if(!st.ready){ return { showLogin:false, showApp:false, icons:I, theme:st.theme }; }
+    if(!sess){
+      const roleColor={admin:'var(--red)',supervisor:'var(--accent2)',viewer:'var(--faint)',inspector:'var(--green)'};
+      const roleIcon={admin:I.shield,supervisor:I.users,viewer:I.eye,inspector:I.inspect};
+      const accs=(this.db().users||[]).map(u=>({role:u.name+' — '+u.role,cred:u.username+' / '+u.password,icon:roleIcon[u.roleKey]||I.user,color:roleColor[u.roleKey]||'var(--accent2)',onClick:()=>this.loginAs(u.username)}));
+      const msAccounts=(this.db().users||[]).filter(u=>(u.email||'').indexOf('@moe.gov.bh')>=0).map(u=>({name:u.name,email:u.email,init:u.init,onClick:()=>this.msLogin(u.email)}));
+      return {
+        showLogin:true, showApp:false, icons:I, theme:st.theme,
+        loginUser:st.loginUser, loginPass:st.loginPass, loginErr:st.loginErr,
+        onLoginUser:e=>this.setState({loginUser:e.target.value}),
+        onLoginPass:e=>this.setState({loginPass:e.target.value}),
+        onLoginKey:e=>{ if(e.key==='Enter') this.doLogin(); },
+        doLogin:()=>this.doLogin(), demoAccounts:accs,
+        msAccounts, msPicker:!!st.msPicker, openMs:()=>this.openMs(), closeMs:()=>this.closeMs()
+      };
+    }
+
+    const db=this.db();
+    const insts=db.institutions||[];
+    const isAdmin=role==='admin';
+    const isSupervisor=role==='supervisor';
+    const isViewer=role==='viewer';
+    const isInspector=role==='inspector';
+    const isEstablishment=role==='establishment';
+    // assigned institutions for this inspector
+    const myUser=(db.users||[]).find(u=>u.id===(sess&&sess.id))||null;
+    const inspAssigned=(myUser&&myUser.assigned)?myUser.assigned:[];
+    // confidentiality scope: inspector sees ONLY assigned institutions across the whole dashboard
+    const scopeOn=isInspector;
+    const scopeInsts=scopeOn?insts.filter(x=>inspAssigned.indexOf(x.id)>=0):insts;
+    const scopeInsps=scopeOn?(db.inspections||[]).filter(v=>inspAssigned.indexOf(v.instId)>=0):(db.inspections||[]);
+    const scopeVios=scopeOn?(db.violations||[]).filter(v=>inspAssigned.indexOf(v.instId)>=0):(db.violations||[]);
+    const scopeCmps=scopeOn?(db.complaints||[]).filter(c=>inspAssigned.indexOf(c.instId)>=0):(db.complaints||[]);
+    // screen guard by role
+    const allowedScreens=isEstablishment?['myinst','agent']:isInspector?['dashboard','institutions','inspection','agent']:['dashboard','institutions','licenses','inspection','violations','complaints','reports','team','myinst','agent'];
+    let sc=st.screen;
+    if(allowedScreens.indexOf(sc)<0) sc=allowedScreens[0];
+    const vioOpenBadge=(db.violations||[]).filter(v=>v.statusLabel!=='مُعالَجة').length;
+    let nav;
+    if(isEstablishment){
+      nav=[['myinst','منشأتي',I.building,null],['agent','ECE Agent',I.spark,'AI']];
+    } else if(isInspector){
+      nav=[['dashboard','لوحة التحكم',I.grid,null],['institutions','مؤسساتي المُسندة',I.building,inspAssigned.length],['inspection','تقارير التفتيش',I.inspect,null],['agent','ECE Agent',I.spark,'AI']];
+    } else {
+      nav=[['dashboard','لوحة التحكم',I.grid,null],['institutions','المؤسسات',I.building,insts.length],['licenses','التراخيص',I.doc,null],['inspection','التفتيش',I.inspect,null],['violations','المخالفات',I.warn,vioOpenBadge],['complaints','الشكاوى',I.chat,null],['reports','التقارير',I.bars,null],['team','المستخدمون والصلاحيات',I.users,null],['agent','ECE Agent',I.spark,'AI']];
+    }
+    const titles={dashboard:'لوحة التحكم',institutions:isInspector?'مؤسساتي المُسندة':'إدارة المؤسسات',licenses:'إدارة التراخيص',inspection:isInspector?'تقارير التفتيش':'إدارة التفتيش',violations:'المخالفات والإجراءات',complaints:'الشكاوى',reports:'التقارير',team:'المستخدمون والصلاحيات',myinst:'منشأتي',agent:'ECE Agent — المساعد الذكي'};
+    const navItems=nav.map(n=>({id:n[0],label:n[1],icon:n[2],badge:n[3]?(''+n[3]):'',active:sc===n[0],inactive:sc!==n[0],onClick:()=>this.go(n[0])}));
+
+    // ---- KPIs (live, scoped for inspector) ----
+    const licensed=scopeInsts.filter(x=>x.status==='مرخّصة').length;
+    const underProc=scopeInsts.filter(x=>x.status==='تحت الإجراء').length;
+    const inspDone=scopeInsps.length;
+    const vioOpen=scopeVios.filter(v=>v.statusLabel!=='مُعالَجة').length;
+    const kpis=[
+      {value:licensed,label:'مؤسسة مرخّصة',icon:I.building,color:'var(--accent2)',delta:'+12',deltaColor:'var(--green)',deltaIcon:I.up,onClick:()=>this.setState({screen:'institutions',fStatus:'مرخّصة',fType:'',fGov:'',q:'',navOpen:false,sel:null,modal:null})},
+      {value:underProc,label:'تحت الإجراء',icon:I.doc,color:'var(--amber)',delta:'+5',deltaColor:'var(--amber)',deltaIcon:I.up,onClick:()=>this.setState({screen:'institutions',fStatus:'تحت الإجراء',fType:'',fGov:'',q:'',navOpen:false,sel:null,modal:null})},
+      {value:inspDone,label:'زيارة تفتيشية مسجّلة',icon:I.inspect,color:'var(--green)',delta:'+'+inspDone,deltaColor:'var(--green)',deltaIcon:I.up,onClick:()=>this.go('inspection')},
+      {value:vioOpen,label:'مخالفة مفتوحة',icon:I.warn,color:'var(--red)',delta:'-9',deltaColor:'var(--green)',deltaIcon:I.dn,onClick:()=>this.go('violations')}
+    ];
+
+    // ---- charts ----
+    const tv=[78,84,72,90,96,88,102,95,110,118,124,131];
+    const tmin=Math.min.apply(null,tv),tmax=Math.max.apply(null,tv);
+    const W=340,H=120,padX=12,padT=14,padB=16;
+    const xx=i=>padX+i*((W-2*padX)/(tv.length-1));
+    const yy=v=>padT+(1-(v-tmin)/(tmax-tmin))*(H-padT-padB);
+    const linePts=tv.map((v,i)=>xx(i).toFixed(1)+','+yy(v).toFixed(1)).join(' ');
+    const trendArea=padX+','+(H-padB)+' '+linePts+' '+(W-padX)+','+(H-padB);
+
+    const typeColors={'روضة أطفال':'var(--accent2)','حضانة':'var(--green)','مؤسسة شاملة':'var(--amber)'};
+    const typeAgg={}; scopeInsts.forEach(x=>typeAgg[x.type]=(typeAgg[x.type]||0)+1);
+    const typeArr=['حضانة','روضة أطفال','مؤسسة شاملة'].filter(k=>typeAgg[k]).map(k=>({l:k,v:typeAgg[k],c:typeColors[k]||'var(--faint)'}));
+    const totT=typeArr.reduce((a,b)=>a+b.v,0)||1; let accP=0;
+    const stops=typeArr.map(t=>{const a=accP/totT*100;accP+=t.v;const b=accP/totT*100;t.pct=Math.round(t.v/totT*100)+'%';t.dot=t.c;return t.c+' '+a.toFixed(1)+'% '+b.toFixed(1)+'%';}).join(',');
+    const donutBg='conic-gradient('+stops+')';
+
+    const govAgg={}; scopeInsts.forEach(x=>govAgg[x.gov]=(govAgg[x.gov]||0)+1);
+    const govArr=['العاصمة','المحرق','الشمالية','الجنوبية'].map(n=>({n,v:govAgg[n]||0}));
+    const gmax=Math.max.apply(null,govArr.map(g=>g.v))||1;
+    govArr.forEach(g=>g.w=Math.round(g.v/gmax*100)+'%');
+
+    const recentVisits=scopeInsps.slice(0,5).map(v=>({inst:v.inst,type:v.type,date:v.date,inspector:v.inspector,resLabel:v.resLabel,resultCss:chipCss(v.resTone)}));
+
+    // ---- alerts (live, scoped) ----
+    const expiringSoon=scopeInsts.filter(x=>x.days>=0&&x.days<=30).sort((a,b)=>a.days-b.days);
+    const emailOn=!(db.settings&&db.settings.emailAlerts===false);
+    const adminEmail=(db.settings&&db.settings.adminEmail)||'admin@moe.gov.bh';
+    const extraEmails=(db.settings&&db.settings.extraEmails)||[];
+    const allRecipients=[adminEmail].concat(extraEmails);
+    const recipientSuffix=extraEmails.length?(' و'+extraEmails.length+' مستلم إضافي'):'';
+    const emailSent=emailOn?('تم إرسال نسخة من هذا التنبيه إلى بريد مدير النظام ('+adminEmail+')'+recipientSuffix+'.'):'الإشعار بالبريد متوقّف حالياً.';
+    const alerts=[];
+    const myNotifs=(db.notifs||[]).filter(n=>n.to===(sess&&sess.id));
+    myNotifs.slice(0,5).forEach(n=>{ const ic=n.kind==='إتمام زيارة'?I.check:I.inspect; alerts.push({text:n.text,time:n.date,dot:n.kind==='إتمام زيارة'?tones.green:tones.accent,icon:ic,kind:n.kind,detail:n.text}); });
+    if(expiringSoon[0]) alerts.push({text:'ترخيص «'+expiringSoon[0].name+'» ينتهي خلال '+expiringSoon[0].days+' يوماً',time:'قبل ساعة',dot:tones.red,icon:I.doc,kind:'ترخيص',instId:expiringSoon[0].id,detail:'يقترب ترخيص مؤسسة «'+expiringSoon[0].name+'» من تاريخ الانتهاء ('+expiringSoon[0].expiry+'). يُنصح بمباشرة إجراءات التجديد قبل '+expiringSoon[0].days+' يوماً لتفادي إيقاف النشاط.'});
+    if(vioOpen) alerts.push({text:vioOpen+' مخالفة مفتوحة تحتاج متابعة',time:'قبل 3 ساعات',dot:tones.amber,icon:I.warn,kind:'مخالفات',detail:'يوجد '+vioOpen+' مخالفة في حالة مفتوحة أو قيد المعالجة تتطلب متابعة الإجراءات التصحيحية والتأكد من الالتزام ضمن المهلة المحددة.'});
+    const newCmp=scopeCmps.filter(c=>c.statusLabel==='جديدة'||c.statusLabel==='قيد التحقيق');
+    if(newCmp[0]) alerts.push({text:'شكوى '+newCmp[0].statusLabel+' بحق '+newCmp[0].inst,time:'أمس',dot:tones.accent,icon:I.chat,kind:'شكوى',instId:newCmp[0].instId,detail:'وردت شكوى ('+newCmp[0].ref+') بخصوص «'+newCmp[0].inst+'» وحالتها الآن: '+newCmp[0].statusLabel+'. يُرجى مراجعتها واتخاذ الإجراء المناسب.'});
+    const expired=scopeInsts.filter(x=>x.days<0);
+    if(expired[0]) alerts.push({text:expired.length+' ترخيص منتهٍ يتطلب تجديداً',time:'أمس',dot:tones.red,icon:I.doc,kind:'تراخيص منتهية',instId:expired[0].id,detail:'يوجد '+expired.length+' ترخيص منتهٍ. أقدمها «'+expired[0].name+'» (انتهى في '+expired[0].expiry+'). يجب إيقاف النشاط أو التجديد الفوري.'});
+    while(alerts.length<3) alerts.push({text:'جميع الزيارات المجدولة منفّذة',time:'اليوم',dot:tones.green,icon:I.check,kind:'حالة عامة',detail:'لا توجد تنبيهات حرجة إضافية. جميع الزيارات التفتيشية المجدولة تم تنفيذها.'});
+    const alertItems=alerts.map(a=>({text:a.text,time:a.time,dot:a.dot,icon:a.icon,onClick:()=>this.openAlert(a)}));
+
+    // ---- institutions screen (filter + search) ----
+    const q=st.q.trim();
+    const baseInsts=scopeInsts;
+    const filtered=baseInsts.filter(x=>{
+      if(st.fType && x.type!==st.fType) return false;
+      if(st.fGov && x.gov!==st.fGov) return false;
+      if(st.fStatus && x.status!==st.fStatus) return false;
+      if(q && !((x.name||'').includes(q)||(x.license||'').includes(q)||(x.owner||'').includes(q)||(x.en||'').toLowerCase().includes(q.toLowerCase()))) return false;
+      return true;
+    });
+    const stripPrefix=n=>(n||'').replace(/^(روضة|حضانة|مؤسسة)\s+/,'');
+    const inspByInst={}; (db.inspections||[]).forEach(v=>{ inspByInst[v.instId]=true; });
+    const instSort=st.instSort||{key:'',dir:'asc'};
+    const sortedInsts=this.sortList(filtered,instSort,{name:x=>x.name||'',license:x=>x.license||'',type:x=>x.type||'',gov:x=>x.gov||'',compliance:x=>x.compliance||0,status:x=>x.status||''});
+    const instArrow=k=> instSort.key===k?(instSort.dir==='asc'?' ▲':' ▼'):'';
+    const instCols=[['name','المؤسسة'],['license','رقم الترخيص'],['type','النوع'],['gov','المحافظة'],['compliance','الالتزام'],['status','الحالة']].map(c=>({key:c[0],label:c[1],arrow:instArrow(c[0]),color:instSort.key===c[0]?'var(--accent2)':'var(--faint)',onSort:()=>this.setSort('instSort',c[0])}));
+    const institutions=sortedInsts.map(x=>{ const assessed=!!inspByInst[x.id]||x.compliance>0; return { id:x.id,name:x.name,license:x.license,type:x.type,gov:x.gov,capacity:x.capacity,compliance:x.compliance,
+      initial:(stripPrefix(x.name)||x.name||'؟').charAt(0), compLabel:assessed?(x.compliance+'%'):'—', compW:assessed?(x.compliance+'%'):'0%', compColor:assessed?compColor(x.compliance):'var(--faint)',
+      status:x.status, statusCss:chipCss(statusTone(x.status)), onOpen:()=>this.openInst(x.id) }; });
+    const optList=(arr,allLabel)=>[{v:'',l:allLabel}].concat(arr.map(a=>({v:a,l:a})));
+
+    // ---- licenses ----
+    const licStageOf=d=> d<0?{label:'منتهٍ',tone:'faint'}: d<=30?{label:'حرج',tone:'red'}: d<=60?{label:'تنبيه',tone:'amber'}: d<=90?{label:'قريب',tone:'accent'}:{label:'ساري',tone:'green'};
+    const licenses=insts.slice().sort((a,b)=>a.days-b.days).map(x=>{ const sgr=licStageOf(x.days); return {
+      id:x.id,name:x.name,license:x.license,year:x.year,expiry:x.expiry,days:x.days,
+      daysLabel: x.days<0?('منتهٍ منذ '+Math.abs(x.days)+' يوم'):(x.days+' يوم متبقٍّ'),
+      stageLabel:sgr.label, stageCss:chipCss(sgr.tone), stageColor:tones[sgr.tone], critical:x.days<=30,
+      onOpen:()=>this.openInst(x.id), onRenew:()=>this.renewLicense(x.id), onEmail:()=>this.emailLicenseReminder(x.id) }; });
+    const licStats=[
+      {l:'سارية',v:insts.filter(x=>x.days>90).length,color:'var(--green)'},
+      {l:'قريبة (90 يوم)',v:insts.filter(x=>x.days>60&&x.days<=90).length,color:'var(--accent2)'},
+      {l:'تنبيه (60 يوم)',v:insts.filter(x=>x.days>30&&x.days<=60).length,color:'var(--amber)'},
+      {l:'حرجة (30 يوم)',v:insts.filter(x=>x.days>=0&&x.days<=30).length,color:'var(--red)'},
+      {l:'منتهية',v:insts.filter(x=>x.days<0).length,color:'var(--faint)'}
+    ];
+
+    // ---- inspection screen ----
+    const arMonths=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const dateRank=d=>{ const m=(''+d).match(/(\d+)\s+(\S+)/); if(!m)return 0; const mi=arMonths.indexOf(m[2]); return (mi<0?0:mi)*31+parseInt(m[1],10); };
+    const inspSort=st.inspSort||{key:'date',dir:'desc'};
+    const inspBase=scopeInsps;
+    const inspSorted=inspBase.slice().sort((a,b)=>{
+      let av,bv; const k=inspSort.key;
+      if(k==='score'){ av=a.score; bv=b.score; }
+      else if(k==='date'){ av=dateRank(a.date); bv=dateRank(b.date); }
+      else { av=''+(a[k]||''); bv=''+(b[k]||''); return inspSort.dir==='asc'?av.localeCompare(bv,'ar'):bv.localeCompare(av,'ar'); }
+      return inspSort.dir==='asc'?av-bv:bv-av;
+    });
+    const inspections=inspSorted.map(v=>({id:v.id,inst:v.inst,type:v.type,date:v.date,inspector:v.inspector,score:v.score,scoreColor:compColor(v.score),resLabel:v.resLabel,resultCss:chipCss(v.resTone),onReport:()=>this.openReport(v.id)}));
+    const sortArrow=k=> inspSort.key===k?(inspSort.dir==='asc'?' ▲':' ▼'):'';
+    const inspCols=[['id','الرقم'],['inst','المؤسسة'],['type','النوع'],['date','التاريخ'],['inspector','المفتش'],['score','التقييم'],['resLabel','النتيجة']].map(c=>({label:c[1],arrow:sortArrow(c[0]),color:inspSort.key===c[0]?'var(--accent2)':'var(--faint)',onSort:()=>this.sortInsp(c[0])}));
+    const axisItemCount=(db.inspectionAxes||[]).reduce((a,ax)=>a+ax.items.length,0);
+    const inspStats=[
+      {l:'إجمالي الزيارات',v:inspections.length,color:'var(--accent2)'},
+      {l:'ممتاز',v:inspections.filter(v=>v.resLabel==='ممتاز').length,color:'var(--green)'},
+      {l:'جيد',v:inspections.filter(v=>v.resLabel==='جيد').length,color:'var(--accent2)'},
+      {l:'مرضٍ',v:inspections.filter(v=>v.resLabel==='مرضٍ').length,color:'var(--amber)'},
+      {l:'غير ملائم',v:inspections.filter(v=>v.resLabel==='غير ملائم').length,color:'var(--red)'}
+    ];
+
+    // ---- violations ----
+    const vioSort=st.vioSort||{key:'',dir:'asc'};
+    const sevRank=l=>({'عالية':3,'مرتفعة':3,'متوسطة':2,'منخفضة':1})[l]||0;
+    const sortedVio=this.sortList((db.violations||[]),vioSort,{id:v=>v.id||'',inst:v=>v.inst||'',cat:v=>v.cat||'',sevLabel:v=>sevRank(v.sevLabel),date:v=>dateRank(v.date),due:v=>dateRank(v.due),statusLabel:v=>v.statusLabel||''});
+    const vioArrow=k=> vioSort.key===k?(vioSort.dir==='asc'?' ▲':' ▼'):'';
+    const vioCols=[['id','الرقم'],['inst','المؤسسة'],['cat','التصنيف'],['sevLabel','الخطورة'],['date','التاريخ'],['due','الاستحقاق'],['statusLabel','الحالة']].map(c=>({key:c[0],label:c[1],arrow:vioArrow(c[0]),color:vioSort.key===c[0]?'var(--accent2)':'var(--faint)',onSort:()=>this.setSort('vioSort',c[0])}));
+    const vioSel=st.vioSel||[];
+    const violations=sortedVio.map(v=>({id:v.id,inst:v.inst,cat:v.cat,sevLabel:v.sevLabel,sevCss:chipCss(v.sevTone),date:v.date,due:v.due,statusLabel:v.statusLabel,statusCss:chipCss(v.statusTone),onDelete:()=>this.deleteViolation(v.id),
+      selBg:vioSel.indexOf(v.id)>=0?'var(--accent2)':'transparent', selBorder:vioSel.indexOf(v.id)>=0?'var(--accent2)':'var(--line)', selCheck:vioSel.indexOf(v.id)>=0?'✓':'', onSel:()=>this.toggleVioSel(v.id)}));
+    const vioRefs=sortedVio.map(v=>v.id);
+    const vioAllChecked=vioRefs.length>0 && vioRefs.every(r=>vioSel.indexOf(r)>=0);
+    const vioSelCount=vioSel.length;
+    // ---- complaints ----
+    const cmpSel=st.cmpSel||[];
+    const cmpSort=st.cmpSort||{key:'',dir:'asc'};
+    const sortedCmp=this.sortList((db.complaints||[]),cmpSort,{ref:c=>c.ref||'',inst:c=>c.inst||'',cat:c=>c.cat||'',channel:c=>c.channel||'',date:c=>dateRank(c.date),statusLabel:c=>c.statusLabel||''});
+    const cmpArrow=k=> cmpSort.key===k?(cmpSort.dir==='asc'?' ▲':' ▼'):'';
+    const cmpCols=[['ref','المرجع'],['inst','المؤسسة'],['cat','التصنيف'],['channel','القناة'],['date','التاريخ'],['statusLabel','الحالة']].map(c=>({key:c[0],label:c[1],arrow:cmpArrow(c[0]),color:cmpSort.key===c[0]?'var(--accent2)':'var(--faint)',onSort:()=>this.setSort('cmpSort',c[0])}));
+    const complaints=sortedCmp.map(c=>({ref:c.ref,inst:c.inst,cat:c.cat,channel:c.channel,date:c.date,statusLabel:c.statusLabel,statusCss:chipCss(c.statusTone),onDelete:()=>this.deleteComplaint(c.ref),
+      selected:cmpSel.indexOf(c.ref)>=0, selBg:cmpSel.indexOf(c.ref)>=0?'var(--accent2)':'transparent', selBorder:cmpSel.indexOf(c.ref)>=0?'var(--accent2)':'var(--line)', selCheck:cmpSel.indexOf(c.ref)>=0?'✓':'', onSel:()=>this.toggleCmpSel(c.ref)}));
+    const cmpRefs=(db.complaints||[]).map(c=>c.ref);
+    const cmpAllChecked=cmpRefs.length>0 && cmpRefs.every(r=>cmpSel.indexOf(r)>=0);
+    const cmpSelCount=cmpSel.length;
+
+    // ---- reports ----
+    const reports=[
+      {t:'تقرير المؤسسات',d:'الحالة والنوع والسعة ونسبة الالتزام',icon:I.building,color:'var(--accent2)',count:insts.length,kind:'institutions'},
+      {t:'تقرير التراخيص',d:'الإصدار والتجديد ومواعيد الانتهاء',icon:I.doc,color:'var(--green)',count:insts.length,kind:'licenses'},
+      {t:'تقرير التفتيش',d:'الزيارات المنفّذة ونتائج التقييم',icon:I.inspect,color:'var(--accent2)',count:inspections.length,kind:'inspections'},
+      {t:'تقرير المخالفات',d:'التصنيف ودرجة الخطورة والحالة',icon:I.warn,color:'var(--red)',count:violations.length,kind:'violations'},
+      {t:'تقرير الشكاوى',d:'الاستقبال والقناة وحالة المعالجة',icon:I.chat,color:'var(--amber)',count:complaints.length,kind:'complaints'},
+      {t:'تقرير المستخدمين',d:'الحسابات والصلاحيات والحالة',icon:I.users,color:'var(--green)',count:(db.users||[]).length,kind:'team'}
+    ].map(r=>Object.assign(r,{onExport:()=>this.exportCSV(r.kind),onPrint:()=>this.printList(r.kind),onView:()=>this.viewRecords(r.kind)}));
+
+    // ---- team ----
+    // ---- users (admin) ----
+    const roleTone={'مدير النظام':'red','مشرف':'accent','مفتش أول':'amber','مفتش':'green','مطّلع — اطلاع فقط':'faint','ممثل منشأة':'accent'};
+    const allUsers=(db.users||[]).filter(u=>u.roleKey!=='establishment');
+    const instNameById=id=>{ const x=insts.find(i=>i.id===id); return x?x.name:'—'; };
+    const users=allUsers.map(u=>{
+      let assignedLabel='—';
+      if(u.roleKey==='inspector') assignedLabel=(u.assigned&&u.assigned.length)?(u.assigned.length+' مؤسسة'):'لا يوجد';
+      else if(u.roleKey==='establishment') assignedLabel=u.instId?instNameById(u.instId):'غير مرتبط';
+      else assignedLabel='كل المؤسسات';
+      const isSelf=sess&&u.id===sess.id;
+      return {
+        id:u.id,name:u.name,username:u.username,init:u.init,role:u.role,roleCss:chipCss(roleTone[u.role]||'faint'),
+        assignedLabel, activeLabel:u.active===false?'موقوف':'نشط', activeCss:chipCss(u.active===false?'red':'green'),
+        canAssign:canAssign&&(u.roleKey==='inspector'||u.roleKey==='establishment'),
+        canEdit:canManage,
+        canDelete:isAdmin&&!isSelf,
+        onAssign:()=>this.openAssign(u.id), onEdit:()=>this.editUser(u.id), onDelete:()=>this.deleteUser(u.id)
+      };
+    });
+    const userStats=[
+      {l:'إجمالي المستخدمين',v:allUsers.length,color:'var(--accent2)'},
+      {l:'مديرو النظام',v:allUsers.filter(u=>u.roleKey==='admin').length,color:'var(--red)'},
+      {l:'المشرفون',v:allUsers.filter(u=>u.roleKey==='supervisor').length,color:'var(--green)'},
+      {l:'المفتشون',v:allUsers.filter(u=>u.roleKey==='inspector').length,color:'var(--amber)'},
+      {l:'المطّلعون',v:allUsers.filter(u=>u.roleKey==='viewer').length,color:'var(--faint)'}
+    ];
+    const teamCount=allUsers.length;
+
+    // ---- establishment (my institution) ----
+    const myInstX=isEstablishment&&sess.instId?insts.find(i=>i.id===sess.instId):null;
+    let myInst=null,myAxes=[],myStats=[],myItemCount=0,myRespondedCount=0;
+    if(myInstX){
+      myInst={name:myInstX.name,license:myInstX.license,gov:myInstX.gov,capacity:myInstX.capacity,status:myInstX.status,statusCss:chipCss(statusTone(myInstX.status))};
+      const myResp=(db.responses||[]).filter(r=>r.instId===myInstX.id);
+      const respByItem={}; myResp.forEach(r=>respByItem[r.itemId]=r);
+      myAxes=(db.inspectionAxes||[]).map(ax=>({ axis:ax.axis, items:ax.items.map(it=>{ myItemCount++; const r=respByItem[it.id]; const done=r&&r.statusLabel==='تمت المعالجة'; if(r&&r.statusLabel==='تمت المعالجة')myRespondedCount++;
+        return {item:it.item, hasResp:!!r, respNote:r?(r.note||'بدون ملاحظة'):'', statusLabel:r?r.statusLabel:'بانتظار الرد', statusCss:chipCss(r?r.statusTone:'faint'), btnLabel:r?'تعديل الرد':'تسليم الرد', onRespond:()=>this.openRespond(myInstX.id,it.id,ax.axis,it.item)}; }) }));
+      myStats=[
+        {l:'نسبة الالتزام',v:myInstX.compliance+'%',color:compColor(myInstX.compliance)},
+        {l:'بنود تمت معالجتها',v:myRespondedCount,color:'var(--green)'},
+        {l:'بنود بانتظار الرد',v:(myItemCount-myResp.length),color:'var(--amber)'}
+      ];
+    }
+
+    // ---- inspection report modal ----
+    const repX=st.modal==='report'?st.form:null;
+    const reportEditable=canWrite; // admin + inspector
+    let report=null;
+    if(repX){ report={inst:repX.inst,id:repX.id,inspector:repX.inspector,date:repX.date,type:repX.type,score:repX.score,scoreColor:compColor(repX.score),resLabel:repX.resLabel,resultCss:chipCss(repX.resTone),
+      axes:(repX.axisScores||[]).map(a=>({axis:a.axis,pct:a.pct,color:compColor(a.pct),w:a.pct+'%'})), hasAxes:!!(repX.axisScores&&repX.axisScores.length) }; }
+
+
+    // ---- selected institution drawer ----
+    const selX=insts.find(x=>x.id===st.sel)||null;
+    let sel=null,instInfo=[],licHistory=[],selVisits=[],selVisitsEmpty=false;
+    if(selX){
+      const sgr=licStageOf(selX.days);
+      const lastInsp=(db.inspections||[]).filter(v=>v.instId===selX.id)[0];
+      const selAssessed=!!lastInsp||selX.compliance>0;
+      sel={ initial:(stripPrefix(selX.name)||selX.name||'؟').charAt(0), name:selX.name, license:selX.license, status:selX.status, statusCss:chipCss(statusTone(selX.status)),
+        compliance:selX.compliance, compW:selAssessed?(selX.compliance+'%'):'0%', compColor:selAssessed?compColor(selX.compliance):'var(--faint)',
+        compValueLabel:selAssessed?(selX.compliance+'%'):'لم تُقيّم بعد',
+        compNote:selAssessed?(lastInsp?('محتسبة آلياً من بنود التفتيش — آخر زيارة '+lastInsp.date):'محتسبة آلياً من بنود التفتيش المعتمدة'):'تُحتسب آلياً من بنود التفتيش بعد تنفيذ أول زيارة',
+        expiry:selX.expiry,
+        daysLabel: selX.days<0?('منتهٍ منذ '+Math.abs(selX.days)+' يوم'):(selX.days+' يوم متبقٍّ'), stageColor:tones[sgr.tone],
+        lastInspLabel: lastInsp?('آخر زيارة '+lastInsp.date):'لم تُسجَّل زيارة بعد' };
+      instInfo=[
+        {k:'النوع',v:selX.type}, {k:'المحافظة',v:selX.gov},
+        {k:'المنطقة',v:selX.area,span:'grid-column:span 2;'},
+        {k:'الطاقة الاستيعابية',v:selX.capacity+' طفل'}, {k:'عدد الغرف',v:selX.rooms},
+        {k:'سنة الترخيص',v:selX.year}, {k:'الهوية',v:selX.identity},
+        {k:'المدير المسؤول',v:selX.manager}, {k:'المالك',v:selX.owner},
+        {k:'الهاتف',v:selX.phone,dir:'direction:ltr;text-align:right;'}, {k:'البريد الإلكتروني',v:selX.email,dir:'direction:ltr;text-align:right;'}
+      ].map(f=>({k:f.k,v:f.v,span:f.span||'',dir:f.dir||''}));
+      licHistory=[
+        {action:'إصدار الترخيص',date:selX.year,by:'الإدارة',dot:tones.green},
+        {action:'آخر تجديد',date:''+(parseInt(selX.year,10)+3||'—'),by:'الإدارة',dot:tones.green},
+        {action: selX.days<0?'انتهاء الترخيص':'تنبيه قرب الانتهاء',date:selX.expiry,by:'النظام',dot:selX.days<0?tones.red:tones.amber}
+      ];
+      selVisits=(db.inspections||[]).filter(v=>v.instId===selX.id).map(v=>({type:v.type,date:v.date,inspector:v.inspector,score:v.score,scoreColor:compColor(v.score),resLabel:v.resLabel,resultCss:chipCss(v.resTone)}));
+      selVisitsEmpty=selVisits.length===0;
+    }
+    const fileCount=st.files.length;
+    const instTabs=[['data','البيانات'],['attach','المرفقات'],['license','الترخيص'],['visits','الزيارات']].map(t=>({id:t[0],label:t[1],active:st.instTab===t[0],inactive:st.instTab!==t[0],count:t[0]==='attach'&&fileCount?fileCount:'',onClick:()=>this.setTab(t[0])}));
+    const files=st.files.map(f=>({name:f.name,tag:f.tag,sizeLabel:f.size<1024?f.size+' B':f.size<1048576?(f.size/1024).toFixed(0)+' KB':(f.size/1048576).toFixed(1)+' MB',atLabel:new Date(f.at).toLocaleDateString('ar-EG'),onDownload:()=>this.downloadFile(f.id),onDelete:()=>this.delFile(f.id)}));
+
+    // ---- form modal ----
+    const F=st.form;
+    const setF=k=>e=>this.setForm(k,(e&&e.target)?e.target.value:e);
+    let formFields=[],modalTitle='',modalWidth='560px',submitLabel='حفظ',isFormFields=false,isConfirm=false,confirmText='';
+    const mt=st.modal;
+    if(mt==='inst'){
+      isFormFields=true; modalTitle=F._new?'تسجيل مؤسسة جديدة':'تعديل بيانات المؤسسة'; modalWidth='640px';
+      formFields=[
+        {key:'name',label:'اسم المؤسسة',kind:'text',span:'grid-column:span 2;'},
+        {key:'en',label:'الاسم بالإنجليزية',kind:'text',span:'grid-column:span 2;'},
+        {key:'type',label:'النوع',kind:'select',options:['حضانة','روضة أطفال','مؤسسة شاملة']},
+        {key:'gov',label:'المحافظة',kind:'select',options:['العاصمة','المحرق','الشمالية','الجنوبية']},
+        {key:'area',label:'المنطقة',kind:'text'},
+        {key:'capacity',label:'الطاقة الاستيعابية',kind:'text',ph:'عدد الأطفال'},
+        {key:'phone',label:'الهاتف',kind:'text'}, {key:'email',label:'البريد الإلكتروني',kind:'text'},
+        {key:'owner',label:'المالك',kind:'text'}, {key:'manager',label:'المدير المسؤول',kind:'text'},
+        {key:'license',label:'رقم الترخيص',kind:'text'}, {key:'year',label:'سنة الترخيص',kind:'text'},
+        {key:'days',label:'الأيام حتى انتهاء الترخيص',kind:'text',ph:'مثال 365'},
+        {key:'status',label:'الحالة',kind:'select',options:['مرخّصة','تحت الإجراء','معلّقة','منتهية']},
+        {key:'_compNote',label:'نسبة الالتزام',kind:'readonlytext',value:'تُحتسب آلياً من بنود التفتيش — يدخلها المفتش عند تنفيذ الزيارة',span:'grid-column:span 2;'}
+      ];
+    } else if(mt==='vio'){
+      isFormFields=true; modalTitle='تسجيل مخالفة'; submitLabel='تسجيل المخالفة';
+      const axes=(db.inspectionAxes||[]);
+      const axisOpts=axes.map(a=>a.axis).concat(['أخرى']);
+      const curAxis=axes.find(a=>a.axis===F.vioAxis);
+      const itemOpts=curAxis?curAxis.items.map(it=>it.item):[];
+      const isOther=F.vioAxis==='أخرى';
+      formFields=[
+        {key:'inst',label:'المؤسسة',kind:'select',options:insts.map(i=>i.name),span:'grid-column:span 2;'},
+        {key:'vioAxis',label:'التصنيف حسب محور التفتيش',kind:'select',options:axisOpts,span:'grid-column:span 2;'}
+      ];
+      if(isOther) formFields.push({key:'customType',label:'نوع المخالفة (أخرى)',kind:'text',ph:'اكتب نوع المخالفة…',span:'grid-column:span 2;'});
+      else formFields.push({key:'vioItem',label:'البند المخالَف',kind:'select',options:itemOpts.length?itemOpts:['—'],span:'grid-column:span 2;'});
+      formFields.push(
+        {key:'sevLabel',label:'درجة الخطورة',kind:'select',options:['عالية','متوسطة','منخفضة']},
+        {key:'statusLabel',label:'الحالة',kind:'select',options:['مفتوحة','قيد المعالجة','متأخرة','مُعالَجة']},
+        {key:'date',label:'تاريخ الرصد',kind:'text'}, {key:'due',label:'تاريخ الاستحقاق',kind:'text'}
+      );
+    } else if(mt==='cmp'){
+      isFormFields=true; modalTitle='تسجيل شكوى'; submitLabel='تسجيل الشكوى';
+      formFields=[
+        {key:'inst',label:'المؤسسة',kind:'select',options:insts.map(i=>i.name),span:'grid-column:span 2;'},
+        {key:'cat',label:'التصنيف',kind:'select',options:['سوء معاملة','النظافة','الرسوم الدراسية','الاكتظاظ','السلامة','جودة الوجبات']},
+        {key:'channel',label:'قناة الاستقبال',kind:'select',options:['الموقع الإلكتروني','الهاتف','البريد','زيارة']},
+        {key:'statusLabel',label:'الحالة',kind:'select',options:['جديدة','قيد التحقيق','محوّلة للتفتيش','مغلقة']},
+        {key:'date',label:'التاريخ',kind:'text'},
+        {key:'note',label:'تفاصيل الشكوى',kind:'area',span:'grid-column:span 2;'}
+      ];
+    } else if(mt==='user'){
+      isFormFields=true; modalTitle=F._new?'إضافة مستخدم وتحديد صلاحيته':'تعديل بيانات المستخدم'; submitLabel=F._new?'إضافة المستخدم':'حفظ';
+      formFields=[
+        {key:'name',label:'الاسم الكامل',kind:'text',span:'grid-column:span 2;'},
+        {key:'username',label:'اسم الدخول',kind:'text'},
+        {key:'password',label:F._new?'كلمة المرور':'كلمة مرور جديدة (اتركها فارغة للإبقاء)',kind:'text',ph:F._new?'':'••••'},
+        {key:'roleKey',label:'الصلاحية',kind:'roleselect'},
+        {key:'active',label:'الحالة',kind:'activeselect'}
+      ];
+    } else if(mt==='respond'){
+      isFormFields=true; modalTitle='تسليم الرد على بند التفتيش'; submitLabel='تسليم الرد';
+      formFields=[
+        {key:'_item',label:'البند',kind:'readonly',span:'grid-column:span 2;'},
+        {key:'statusLabel',label:'حالة المعالجة',kind:'select',options:['قيد المعالجة','تمت المعالجة','تعذّر التنفيذ'],span:'grid-column:span 2;'},
+        {key:'note',label:'تفاصيل الرد والإجراء المتخذ',kind:'area',span:'grid-column:span 2;'}
+      ];
+    } else if(mt==='confirm'){ isConfirm=true; modalTitle='تأكيد الحذف'; submitLabel='حذف نهائي'; confirmText='هل أنت متأكد من حذف هذه المؤسسة وكل سجلاتها؟'; }
+    else if(mt==='confirmUser'){ isConfirm=true; modalTitle='تأكيد حذف المستخدم'; submitLabel='حذف نهائي'; confirmText='هل أنت متأكد من حذف هذا المستخدم؟'; }
+    else if(mt==='confirmVio'){ isConfirm=true; modalTitle='تأكيد حذف المخالفة'; submitLabel='حذف نهائي'; confirmText='هل أنت متأكد من حذف سجل هذه المخالفة نهائياً؟'; }
+    else if(mt==='confirmCmp'){ isConfirm=true; modalTitle='تأكيد حذف الشكوى'; submitLabel='حذف نهائي'; confirmText='هل أنت متأكد من حذف سجل هذه الشكوى نهائياً؟'; }
+    else if(mt==='confirmInsp'){ isConfirm=true; modalTitle='تأكيد حذف الزيارة'; submitLabel='حذف نهائي'; confirmText='هل أنت متأكد من حذف هذه الزيارة التفتيشية؟ ستُعاد نسبة الالتزام للمؤسسة وفق آخر زيارة متبقية.'; }
+    else if(mt==='assign'){ modalTitle=(F.roleKey==='establishment')?'ربط منشأة بالمستخدم':'إسناد مؤسسات وتحديد مواعيد الزيارة'; submitLabel='حفظ الإسناد'; modalWidth='620px'; }
+    else if(mt==='confirmBulkCmp'){ isConfirm=true; modalTitle='حذف الشكاوى المحددة'; submitLabel='حذف المحدد ('+((this.state.cmpSel||[]).length)+')'; confirmText='هل أنت متأكد من حذف '+((this.state.cmpSel||[]).length)+' شكوى محددة نهائياً؟'; }
+    else if(mt==='confirmBulkVio'){ isConfirm=true; modalTitle='حذف المخالفات المحددة'; submitLabel='حذف المحدد ('+((this.state.vioSel||[]).length)+')'; confirmText='هل أنت متأكد من حذف '+((this.state.vioSel||[]).length)+' مخالفة محددة نهائياً؟'; }
+    const roleSelOpts=[{v:'admin',l:'مدير النظام'},{v:'supervisor',l:'مشرف'},{v:'inspector',l:'مفتش'},{v:'viewer',l:'مطّلع — اطلاع فقط'}];
+    const roleLabelMap={admin:'مدير النظام',supervisor:'مشرف',inspector:'مفتش',viewer:'مطّلع — اطلاع فقط'};
+    const roleValMap={'مدير النظام':'admin','مشرف':'supervisor','مفتش':'inspector','مطّلع — اطلاع فقط':'viewer'};
+    formFields=formFields.map(f=>{
+      if(f.kind==='roleselect'){ const supLock=F._supLock; const opts=supLock?['مفتش']:['مدير النظام','مشرف','مفتش','مطّلع — اطلاع فقط']; return {label:supLock?'الصلاحية (المشرف يضيف مفتشين فقط)':f.label,span:f.span||'',ph:'',value:F[f.key]||'inspector',options:opts,onInput:e=>{this.setForm('roleKey',roleValMap[e.target.value]||'inspector');},isSelect:true,_roleVal:roleLabelMap[F[f.key]||'inspector']}; }
+      if(f.kind==='activeselect') return {label:f.label,span:f.span||'',ph:'',value:(F[f.key]===false?'موقوف':'نشط'),options:['نشط','موقوف'],onInput:e=>this.setForm('active',e.target.value==='نشط'),isSelect:true};
+      if(f.kind==='readonly') return {label:f.label,span:f.span||'',ph:'',value:F.item||'',options:[],onInput:()=>{},isText:true,_ro:true};
+      if(f.kind==='readonlytext') return {label:f.label,span:f.span||'',ph:'',value:f.value||'',options:[],onInput:()=>{},isInfo:true};
+      if(f.key==='vioAxis') return {label:f.label,span:f.span||'',ph:'',value:(F.vioAxis==null?'':F.vioAxis),options:f.options||[],isSelect:true,onInput:e=>{ const ax=(db.inspectionAxes||[]).find(a=>a.axis===e.target.value); this.setState(s=>({form:Object.assign({},s.form,{vioAxis:e.target.value,vioItem:(ax&&ax.items[0])?ax.items[0].item:''})})); }};
+      return {label:f.label,span:f.span||'',ph:f.ph||'',value:(F[f.key]==null?'':F[f.key]),options:f.options||[],onInput:setF(f.key),isText:f.kind==='text',isSelect:f.kind==='select',isRange:f.kind==='range',isArea:f.kind==='area'};
+    });
+    // fix role select to show current label as value
+    formFields.forEach(f=>{ if(f._roleVal) f.value=f._roleVal; });
+
+    // ---- inspection form ----
+    const isInspectForm=mt==='inspect';
+    let inspAxes=[],inspScore=0,inspScoreColor='var(--green)';
+    let inspInst='',inspType='دورية',inspInspector='',instOptions=[],visitTypeOptions=[],inspectorOptions=[];
+    let inspVerdict=null;
+    if(isInspectForm){
+      const ins=st.insp; inspInst=ins.instId; inspType=ins.type; inspInspector=ins.inspector;
+      instOptions=scopeInsts.map(i=>({v:i.id,l:i.name}));
+      visitTypeOptions=['دورية','متابعة','مفاجئة','شكاوى'];
+      // inspectors = users who carry out visits (مدير / مشرف / مفتش)
+      const inspUsers=(db.users||[]).filter(u=>['inspector','admin','supervisor'].indexOf(u.roleKey)>=0).map(u=>u.name);
+      inspectorOptions=inspUsers.length?inspUsers:['—'];
+      if(inspInspector && inspectorOptions.indexOf(inspInspector)<0) inspectorOptions=[inspInspector].concat(inspectorOptions);
+      const RAT=this.ratings();
+      let tot=0,met=0;
+      inspAxes=(db.inspectionAxes||[]).map(ax=>{ let asum=0,awt=0; const items=ax.items.map(it=>{ const w=it.weight||1; const r=ins.answers[it.id]||'متوفر'; const f2=this.rateFactor(r); if(f2!==null){ tot+=w; met+=w*f2; asum+=w*f2; awt+=w; }
+        const opts=RAT.map(rt=>({label:rt.label, css:r===rt.label?('background:'+rt.color+';color:#fff;'):'color:var(--muted);background:transparent;', onPick:()=>this.setRating(it.id,rt.label)}));
+        return {item:it.item,weight:w,rating:r,opts:opts}; });
+        const apct=awt?Math.round(asum/awt*100):0;
+        return {axis:ax.axis,items:items,total:ax.items.length,axisPct:apct,axisColor:compColor(apct)}; });
+      inspScore=tot?Math.round(met/tot*100):0; inspScoreColor=compColor(inspScore);
+      inspVerdict=this.verdict(inspScore);
+    }
+
+    // ---- assign modal ----
+    const isAssign=mt==='assign';
+    let assignList=[],assignHint='',assignNotify=true,assignSelCount=0,assignIsEst=false;
+    if(isAssign){
+      const isEst=F.roleKey==='establishment';
+      assignIsEst=isEst; assignNotify=F.notify!==false;
+      assignHint=isEst?'اختر المنشأة التي يمثّلها هذا المستخدم (منشأة واحدة).':'حدّد المؤسسات التي يزورها هذا المفتش، وعيّن موعد كل زيارة. يصل إشعار بالبريد إلى المفتش بالمؤسسات ومواعيدها.';
+      const aq=(st.assignQ||'').trim();
+      const selSet=isEst?(F.instId?[F.instId]:[]):(F.sel||[]);
+      const dates=F.dates||{};
+      assignSelCount=isEst?(F.instId?1:0):(F.sel||[]).length;
+      assignList=insts.filter(x=>!aq||(x.name||'').includes(aq)||(x.license||'').includes(aq)).slice(0,80).map(x=>{
+        const on=selSet.indexOf(x.id)>=0;
+        return {name:x.name,meta:x.type+' · '+x.gov+' · '+x.license,
+          borderColor:on?'var(--accent2)':'var(--line)', boxBorder:on?'var(--accent2)':'var(--faint)', boxBg:on?'var(--accent2)':'transparent', check:on?I.check:I.none,
+          showDate:on&&!isEst, dateVal:dates[x.id]||'', onDate:e=>this.setAssignDate(x.id,e.target.value),
+          onToggle:()=>this.toggleAssign(x.id)};
+      });
+    }
+    const reportNotesView=repX?(repX.notes||'لا توجد ملاحظات مسجّلة.'):'';
+
+    // ---- alert detail modal ----
+    const isAlert=mt==='alert';
+    let alert=null;
+    if(isAlert && F.alert){ const a=F.alert; alert={ text:a.text, time:a.time, dot:a.dot, icon:a.icon, kindLabel:a.kind||'تنبيه', detail:a.detail||a.text,
+      emailNote:emailOn?('أُرسلت نسخة إلى '+adminEmail+recipientSuffix):'الإشعار بالبريد متوقّف',
+      hasInst:!!a.instId, onOpenInst:()=>{ this.setState({modal:null}); this.openInst(a.instId); } }; }
+
+    const toast=st.toast;
+    const toastColor=toast?(toast.tone==='green'?'var(--green)':toast.tone==='amber'?'var(--amber)':'var(--red)'):'';
+    const toastIcon=toast?(toast.tone==='green'?I.check:I.warn):null;
+
+    return {
+      showLogin:false, showApp:true, icons:I, theme:st.theme,
+      navClass:st.navOpen?'open':'', navOpen:st.navOpen, isMobile:st.vw<900,
+      toggleTheme:()=>this.toggleTheme(), toggleNav:()=>this.toggleNav(), themeIcon:st.theme==='dark'?I.sun:I.moon,
+      navItems, screenTitle:titles[sc], userName:sess.name, userRole:sess.role, userInit:sess.init, logout:()=>this.logout(),
+      saveLabel:'محفوظ سحابياً', canWrite, canManage, canDelete, canAddUser, isAdmin,
+      isDashboard:sc==='dashboard', isInstitutions:sc==='institutions', isLicenses:sc==='licenses', isInspection:sc==='inspection', isViolations:sc==='violations', isComplaints:sc==='complaints', isReports:sc==='reports', isTeam:sc==='team', isMyInst:sc==='myinst', isAgent:sc==='agent',
+      instCount:scopeInsts.length, kpis, trendLine:linePts, trendArea, donutBg, types:typeArr, govs:govArr, recentVisits, alerts:alertItems, alertCount:alertItems.length,
+      toggleEmailAlerts:()=>this.toggleEmailAlerts(), adminEmail, emailColor:emailOn?'var(--green)':'var(--faint)', emailTrackBg:emailOn?'var(--green)':'var(--line)', emailKnobPos:emailOn?'left':'right',
+      adminEmailValue:(st.adminEmailDraft!=null?st.adminEmailDraft:adminEmail), onAdminEmailInput:e=>this.onAdminEmailInput(e), onAdminEmailKey:e=>this.onAdminEmailKey(e), saveAdminEmail:()=>this.saveAdminEmail(),
+      emailRecipients:extraEmails.map(e=>({email:e,onRemove:()=>this.removeEmailRecipient(e)})), noRecipients:extraEmails.length===0,
+      emailInput:st.emailInput, emailErr:st.emailErr, onEmailInput:e=>this.setState({emailInput:e.target.value,emailErr:''}), onEmailKey:e=>this.onEmailKey(e), addEmailRecipient:()=>this.addEmailRecipient(),
+      goInspection:()=>this.go('inspection'), exportInst:()=>this.exportCSV('institutions'),
+      agentMsgs:(st.agentMsgs||[]).map((m,i)=>({role:m.role,text:m.text,content:this.renderAgentText(m.text,m.role),isUser:m.role==='user',isBot:m.role==='assistant',rowJustify:m.role==='user'?'flex-end':'flex-start',bubbleBg:m.role==='user'?'linear-gradient(120deg,var(--accent),var(--accent2))':'var(--panel2)',bubbleColor:m.role==='user'?'#fff':'var(--text)',bubbleBorder:m.role==='user'?'transparent':'var(--line)'})),
+      hasAgentMsgs:(st.agentMsgs||[]).length>0, agentEmpty:(st.agentMsgs||[]).length===0,
+      agentInput:st.agentInput, agentBusy:st.agentBusy, agentCanSend:!st.agentBusy && (st.agentInput||'').trim().length>0,
+      onAgentInput:e=>this.setState({agentInput:e.target.value}), onAgentKey:e=>this.onAgentKey(e), askAgent:()=>this.askAgent(), clearAgent:()=>this.setState({agentMsgs:[]}),
+      agentSuggestions:this.agentSuggestions(isInspector,isEstablishment).map(s=>({text:s,onPick:()=>this.askAgent(s)})),
+      agentScope:isInspector?('نطاق إجاباتي محصور في مؤسساتك المُسندة ('+scopeInsts.length+' مؤسسة)'):(isEstablishment?'نطاق إجاباتي محصور في بيانات منشأتك':'يطّلع على كامل بيانات النظام — '+scopeInsts.length+' مؤسسة وتقاريرها'),
+      dashSubtitle:isInspector?('نطاقك الخاص — '+scopeInsts.length+' مؤسسة مُسندة إليك (معلومات سرية)'):('بيانات حيّة من قاعدة البيانات المحلية · '+scopeInsts.length+' مؤسسة'),
+      institutions, instFilteredCount:filtered.length, noResults:filtered.length===0,
+      instTitle:isInspector?'مؤسساتي المُسندة':'سجل المؤسسات',
+      instSubtitle:isInspector?('المؤسسات المُسندة إليك من قبل مدير النظام — '+scopeInsts.length+' مؤسسة'):(filtered.length+' من '+scopeInsts.length+' مؤسسة · اضغط لعرض الملف الكامل'),
+      canAddInst:canManage,
+      emptyInstMsg:(isInspector&&scopeInsts.length===0)?'لم يُسنِد إليك مدير النظام أي مؤسسة بعد.':'لا توجد نتائج مطابقة للبحث',
+      q:st.q, onSearch:e=>this.setState({q:e.target.value}),
+      fType:st.fType, fGov:st.fGov, fStatus:st.fStatus,
+      onFType:e=>this.setState({fType:e.target.value}), onFGov:e=>this.setState({fGov:e.target.value}), onFStatus:e=>this.setState({fStatus:e.target.value}),
+      typeFilterOpts:optList(['حضانة','روضة أطفال','مؤسسة شاملة'],'كل الأنواع'),
+      govFilterOpts:optList(['العاصمة','المحرق','الشمالية','الجنوبية'],'كل المحافظات'),
+      statusFilterOpts:optList(['مرخّصة','تحت الإجراء','معلّقة','منتهية'],'كل الحالات'),
+      addInst:()=>this.addInst(), instCols,
+      licenses, licStats,
+      inspections, inspCount:inspections.length, inspStats, axisItemCount, startInspection:()=>this.startInspection(), inspCols, exportInsp:()=>this.exportCSV('inspections'), printInsp:()=>this.printList('inspections'),
+      violations, vioCount:violations.length, vioOpenCount:vioOpen, addViolation:()=>this.addViolation(), vioCols,
+      vioAllChecked, vioSelCount, vioHasSel:vioSelCount>0, vioSelText:'تم تحديد '+vioSelCount+' من '+violations.length, onVioSelAll:()=>this.toggleVioAll(vioRefs), bulkDeleteVio:()=>this.bulkDeleteVio(),
+      vioAllCheck:vioAllChecked?'✓':'', vioAllBg:vioAllChecked?'var(--accent2)':'transparent', vioAllBorder:vioAllChecked?'var(--accent2)':'var(--line)',
+      complaints, cmpCols, cmpCount:complaints.length, cmpOpenCount:(db.complaints||[]).filter(c=>c.statusLabel!=='مغلقة').length, addComplaint:()=>this.addComplaint(),
+      cmpAllChecked, cmpSelCount, cmpHasSel:cmpSelCount>0, cmpSelText:'تم تحديد '+cmpSelCount+' من '+complaints.length, onCmpSelAll:()=>this.toggleCmpAll(cmpRefs), bulkDeleteCmp:()=>this.bulkDeleteCmp(),
+      cmpAllCheck:cmpAllChecked?'✓':'', cmpAllBg:cmpAllChecked?'var(--accent2)':'transparent', cmpAllBorder:cmpAllChecked?'var(--accent2)':'var(--line)',
+      reports, team:users, teamCount, users, userStats, addUser:()=>this.addUser(), resetDemo:()=>this.resetDemo(),
+      recView:(()=>{ if(!st.recView) return null; const T=this.reportTable(st.recView); const q=(st.recQ||'').trim().toLowerCase(); const allRows=T.rows; const rows=q?allRows.filter(r=>r.some(c=>(''+c).toLowerCase().indexOf(q)>=0)):allRows; return {title:T.title, head:T.head.map(h=>({label:h})), rows:rows.map(r=>({cells:r.map(c=>({v:c}))})), total:allRows.length, shown:rows.length, q:st.recQ||'', noResults:rows.length===0, kind:st.recView}; })(),
+      recViewOpen:!!st.recView, onRecQ:e=>this.setState({recQ:e.target.value}), closeRecView:()=>this.closeRecView(),
+      onRecExport:()=>this.exportCSV(st.recView), onRecPrint:()=>this.printList(st.recView),
+      // establishment
+      myInst, hasMyInst:!!myInstX, noMyInst:isEstablishment&&!myInstX, myAxes, myStats, myItemCount, myRespondedCount, printMyInst:()=>this.printInst(myInstX?myInstX.id:null),
+      // drawer
+      instOpen:!!selX, sel, instInfo, licHistory, instTabs, closeInst:()=>this.closeInst(),
+      tabData:st.instTab==='data', tabAttach:st.instTab==='attach', tabLicense:st.instTab==='license', tabVisits:st.instTab==='visits',
+      editInst:()=>this.editInst(), confirmDeleteInst:()=>this.confirmDeleteInst(), uploadTrigger:()=>this.uploadTrigger(), renewSel:()=>this.renewLicense(st.sel), printInst:()=>this.printInst(st.sel), inspectSel:()=>this.startInspectionFor(st.sel),
+      files, filesLoading:st.filesLoading, filesEmpty:!st.filesLoading&&st.files.length===0, selVisits, selVisitsEmpty,
+      // modal
+      formModalOpen:!!mt, modalTitle, modalWidth, submitLabel, isFormFields, formFields, isConfirm, confirmText,
+      showSubmit: !(mt==='alert') && !(mt==='report'&&!reportEditable), cancelLabel:(mt==='alert'||(mt==='report'&&!reportEditable))?'إغلاق':'إلغاء',
+      submitBg: (mt&&mt.indexOf('confirm')===0)?'var(--red)':'linear-gradient(120deg,var(--accent),var(--accent2))',
+      closeModal:()=>this.closeModal(), submitModal:()=>this.submitModal(), formError:st.formError,
+      isInspectForm, inspAxes, inspScore, inspScoreColor, inspVerdict:inspVerdict?inspVerdict.label:'', inspVerdictCss:inspVerdict?chipCss(inspVerdict.tone):'',
+      inspInst, inspType, inspInspector, instOptions, visitTypeOptions, inspectorOptions,
+      onInspInst:e=>this.setInsp('instId',e.target.value), onInspType:e=>this.setInsp('type',e.target.value), onInspInspector:e=>this.setInsp('inspector',e.target.value),
+      // assign + report
+      isAssign, assignList, assignHint, assignQ:st.assignQ, onAssignQ:e=>this.setState({assignQ:e.target.value}),
+      assignIsEst, assignSelCount, assignHasSel:assignSelCount>0, assignNotify, assignNotifyBg:assignNotify?'var(--green)':'var(--line)', assignNotifyKnob:assignNotify?'left':'right', toggleAssignNotify:()=>this.toggleAssignNotify(),
+      isReport:mt==='report', report, reportEditable, reportReadonly:!reportEditable, reportNotes:(F.notes==null?'':F.notes), reportNotesView, onReportNotes:e=>this.setForm('notes',e.target.value), printReport:()=>this.printReportDoc(this.state.form), onDeleteReport:()=>{ if(repX) this.deleteInspection(repX.id); },
+      isAlert, alert,
+      toast:!!toast, toastMsg:toast?toast.msg:'', toastColor, toastIcon
+    };
+  }
+}
+</script>
+</body>
+</html>
